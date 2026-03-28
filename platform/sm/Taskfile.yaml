@@ -1,0 +1,38 @@
+version: "3"
+
+vars:
+  VERSION: 0.0.0
+
+tasks:
+  deb:amd64:
+    env:
+      GOOS: linux
+      GOARCH: amd64
+      CGO_ENABLED: 0
+    cmds:
+      - mkdir -p sm_{{.VERSION}}_amd64
+      - mkdir -p sm_{{.VERSION}}_amd64/usr/local/bin
+      - mkdir -p sm_{{.VERSION}}_amd64/etc/sm
+      - mkdir -p sm_{{.VERSION}}_amd64/DEBIAN
+      - go build -o sm_{{.VERSION}}_amd64/usr/local/bin/sm .
+      - cp config.yaml sm_{{.VERSION}}_amd64/etc/sm/
+      - |
+        cat <<EOF > sm_{{.VERSION}}_amd64/DEBIAN/control
+        Package: v2k-sm
+        Version: {{.VERSION}}
+        Section: custom
+        Priority: optional
+        Architecture: amd64
+        Maintainer: Ivan Paraskun <ig.paraskun@gmail.com>
+        Description: VEPP-2000 Collider platform service management middleware.
+        EOF
+      - dpkg-deb --build sm_{{.VERSION}}_amd64
+      - rm -r sm_{{.VERSION}}_amd64
+  image:
+    desc: build service manager's image
+    cmds:
+      - docker build -t {{.DOCKER_REGISTRY}}/v2k.sm:latest .
+  publish:
+    desc: publish service manager's image
+    cmds:
+      - docker push {{.DOCKER_REGISTRY}}/v2k.sm:latest

@@ -1,0 +1,18 @@
+plugins {
+    id("java-library")
+}
+
+group = "org.blab.v2k"
+version = "0.0.0"
+
+dependencies {
+    annotationProcessor(libs.lombok)
+    compileOnlyApi(libs.lombok)
+
+    api(libs.commons.math)
+    api(libs.jackson.core)
+    api(libs.jackson.dataformat.yaml)
+
+    testAnnotationProcessor(libs.lombok)
+    testCompileOnly(libs.lombok)
+}

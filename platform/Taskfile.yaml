@@ -1,0 +1,68 @@
+version: "3"
+
+includes:
+  grafana:
+    taskfile: ./grafana/Taskfile.yaml
+    dir: ./grafana
+  sm:
+    taskfile: ./sm/Taskfile.yaml
+    dir: ./sm
+  mq:
+    taskfile: ./mq/Taskfile.yaml
+    dir: ./mq
+
+tasks:
+  config:clean:
+    desc: remove secrets
+    cmds:
+      - docker secret rm mq
+      - docker secret rm redpanda
+      - docker secret rm redpanda-console
+    ignore_error: true
+    internal: true
+
+  config:install:
+    desc: inject secrets and install platform configurations
+    dotenv:
+      - env/secret.env
+      - env/build.local.env
+      - env/build.env
+    cmds:
+      - task: config:clean
+      - envsubst < config/mq.yaml | docker secret create mq -
+      - envsubst < config/redpanda.yaml | docker secret create redpanda -
+      - envsubst < config/redpanda-console.yaml | docker secret create redpanda-console -
+    internal: true
+
+  network:create:
+    desc: create internal docker network
+    cmds:
+      - docker network create --driver overlay --attachable v2k
+    ignore_error: true
+    internal: true
+
+  # task must be called from the root in order to sync before deploy,
+  # therefore it's internal
+  deploy:
+    desc: deploy platform to the swarm
+    dotenv:
+      - env/secret.env
+      - env/build.local.env
+      - env/build.env
+    cmds:
+      - task: network:create
+      - task: config:install
+      - envsubst < compose.yaml | docker stack deploy -c - v2k
+    internal: true
+
+  dev:deploy:
+    dotenv:
+      - env/secret.env
+      - env/build.local.env
+      - env/build.env
+    cmds:
+      - envsubst < compose.dev.yaml | docker compose -f - up -d
+
+  dev:stop:
+    cmds:
+      - docker compose -f compose.dev.yaml down

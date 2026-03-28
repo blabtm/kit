@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package v2k.beam;
+
+option java_package = "org.blab.v2k";
+
+message EnergySpread {
+  int64 time = 1;
+  double current = 2;
+  double energy_spread = 3;
+}

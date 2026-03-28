@@ -1,0 +1,6 @@
+version: '3'
+
+includes:
+  em-es:
+    taskfile: ./em-es/Taskfile.yaml
+    dir: ./em-es

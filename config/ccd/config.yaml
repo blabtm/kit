@@ -1,0 +1,185 @@
+cams:
+  snd_ip:
+    axes:
+      x:
+        beta: 5.0000000e-02
+        dispersion: 7.3710893e-06
+      z:
+        beta: 5.0000000e-02
+        dispersion: -0.0000000e+00
+  1m1l:
+    axes:
+      x:
+        beta: 4.3573654e+00
+        dispersion: 8.8864647e-04
+      z:
+        beta: 5.4344124e+00
+        dispersion: -4.0113306e-22
+  1m1r:
+    axes:
+      x:
+        beta: 2.0768900e-01
+        dispersion: 3.7415392e-01
+      z:
+        beta: 2.7330670e+00
+        dispersion: -1.4459019e-21
+  bpm1:
+    axes:
+      x:
+        beta: 3.2520637e+00
+        dispersion: 7.7743495e-01
+      z:
+        beta: 1.7622597e+00
+        dispersion: 1.2832994e-20
+  1m2l:
+    axes:
+      x:
+        beta: 1.7553643e+00
+        dispersion: 3.7415184e-01
+      z:
+        beta: 2.5989238e+00
+        dispersion: 1.9427322e-20
+  1m2r:
+    axes:
+      x:
+        beta: 7.8512362e-01
+        dispersion: 9.0734931e-04
+      z:
+        beta: 3.3736618e+00
+        dispersion: 2.7024181e-20
+  rf:
+    axes:
+      x:
+        beta: 1.5623249e+00
+        dispersion: 3.6442320e-05
+      z:
+        beta: 1.7807728e+00
+        dispersion: 1.8840152e-20
+  2m2l:
+    axes:
+      x:
+        beta: 8.3579199e-01
+        dispersion: 9.0776309e-04
+      z:
+        beta: 3.5640149e+00
+        dispersion: 1.9774440e-20
+  2m2r:
+    axes:
+      x:
+        beta: 1.6935199e+00
+        dispersion: 3.7415748e-01
+      z:
+        beta: 2.7785630e+00
+        dispersion: 9.9167707e-21
+  bpm2:
+    axes:
+      x:
+        beta: 3.0759482e+00
+        dispersion: 7.7744726e-01
+      z:
+        beta: 1.8739157e+00
+        dispersion: 4.3672710e-21
+  2m1l:
+    axes:
+      x:
+        beta: 2.0469449e-01
+        dispersion: 3.7414851e-01
+      z:
+        beta: 2.7745033e+00
+        dispersion: -9.8472665e-21
+  2m1r:
+    axes:
+      x:
+        beta: 4.2724391e+00
+        dispersion: 8.8693574e-04
+      z:
+        beta: 5.3273985e+00
+        dispersion: -3.1936407e-20
+  cmd_ip:
+    axes:
+      x:
+        beta: 4.9932409e-02
+        dispersion: 7.2722714e-06
+      z:
+        beta: 4.9909581e-02
+        dispersion: -1.0279684e-10
+  3m1l:
+    axes:
+      x:
+        beta: 4.2720247e+00
+        dispersion: 8.8893285e-04
+      z:
+        beta: 5.3272084e+00
+        dispersion: 3.5168628e-20
+  3m1r:
+    axes:
+      x:
+        beta: 2.0466759e-01
+        dispersion: 3.7412549e-01
+      z:
+        beta: 2.7745634e+00
+        dispersion: 1.6455475e-20
+  bpm3:
+    axes:
+      x:
+        beta: 3.0762463e+00
+        dispersion: 7.7749843e-01
+      z:
+        beta: 1.8737184e+00
+        dispersion: 2.4225943e-20
+  3m2l:
+    axes:
+      x:
+        beta: 1.6935564e+00
+        dispersion: 3.7418049e-01
+      z:
+        beta: 2.7785523e+00
+        dispersion: 3.0877091e-20
+  3m2r:
+    axes:
+      x:
+        beta: 8.3579005e-01
+        dispersion: 9.0754998e-04
+      z:
+        beta: 3.5640225e+00
+        dispersion: 3.3493558e-20
+  4m2l:
+    axes:
+      x:
+        beta: 7.8511876e-01
+        dispersion: 9.0684969e-04
+      z:
+        beta: 3.3736799e+00
+        dispersion: 6.3382967e-21
+  4m2r:
+    axes:
+      x:
+        beta: 1.7553962e+00
+        dispersion: 3.7416944e-01
+      z:
+        beta: 2.5989165e+00
+        dispersion: -5.7153170e-21
+  bpm4:
+    axes:
+      x:
+        beta: 3.2523067e+00
+        dispersion: 7.7747408e-01
+      z:
+        beta: 1.7621193e+00
+        dispersion: -9.3067989e-21
+  4m1l:
+    axes:
+      x:
+        beta: 2.0766469e-01
+        dispersion: 3.7413631e-01
+      z:
+        beta: 2.7331157e+00
+        dispersion: -2.4847219e-20
+  4m1r:
+    axes:
+      x:
+        beta: 4.3571043e+00
+        dispersion: 8.8986198e-04
+      z:
+        beta: 5.4342901e+00
+        dispersion: -6.1031513e-20

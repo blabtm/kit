@@ -1,0 +1,16 @@
+version: '3'
+
+tasks:
+  generate:
+    cmds:
+      - protoc -I{{.SCHEMA_DIR}} --java_out=src/main/java v2k/Log.proto
+      - protoc -I{{.SCHEMA_DIR}} --java_out=src/main/java --plugin=protoc-gen-iface={{.TOOLS_DIR}}/protoc-gen-iface/plugin.py --iface_out=src/main/java v2k/beam/AxisSize.proto
+      - protoc -I{{.SCHEMA_DIR}} --java_out=src/main/java --plugin=protoc-gen-iface={{.TOOLS_DIR}}/protoc-gen-iface/plugin.py --iface_out=src/main/java v2k/beam/Current.proto
+      - protoc -I{{.SCHEMA_DIR}} --java_out=src/main/java --plugin=protoc-gen-iface={{.TOOLS_DIR}}/protoc-gen-iface/plugin.py --iface_out=src/main/java v2k/beam/Emittance.proto
+      - protoc -I{{.SCHEMA_DIR}} --java_out=src/main/java --plugin=protoc-gen-iface={{.TOOLS_DIR}}/protoc-gen-iface/plugin.py --iface_out=src/main/java v2k/beam/EnergySpread.proto
+
+  image:
+    deps:
+      - generate
+    cmds:
+      - docker build -t {{.DOCKER_REGISTRY}}/v2k.em-es:latest -f Dockerfile ..

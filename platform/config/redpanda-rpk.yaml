@@ -1,0 +1,10 @@
+rpk:
+  kafka_api:
+    brokers:
+      - localhost:9090
+  admin_api:
+    addresses:
+      - localhost:9644
+  registry:
+    hosts:
+      - http://localhost:9080

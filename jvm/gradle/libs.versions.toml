@@ -1,0 +1,27 @@
+[versions]
+lombok = "1.18.42"
+flink = "2.1.0"
+avro = "1.12.1"
+shadow = "9.3.0"
+registry = "8.1.1"
+postgres = "42.7.8"
+slf4j = "2.0.17"
+jackson = "3.0.3"
+
+[libraries]
+shadow-plugin = { group = "com.gradleup.shadow", name = "shadow-gradle-plugin", version.ref = "shadow" }
+lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" }
+flink-streaming-java = { group = "org.apache.flink", name = "flink-streaming-java", version.ref = "flink" }
+flink-connector-base = { group = "org.apache.flink", name = "flink-connector-base", version.ref = "flink" }
+flink-clients = { group = "org.apache.flink", name = "flink-clients", version.ref = "flink" }
+flink-protobuf = { group = "org.apache.flink", name = "flink-protobuf", version.ref = "flink" }
+flink-connector-kafka = { group = "org.apache.flink", name = "flink-connector-kafka", version = "4.0.1-2.0" }
+kafka-schema-registry-client = { group = "io.confluent", name = "kafka-schema-registry-client", version.ref = "registry" }
+kafka-protobuf-serializer = { group = "io.confluent", name = "kafka-protobuf-serializer", version.ref = "registry" }
+protobuf = { group = "com.google.protobuf", name = "protobuf-java", version = "4.33.5" }
+postgresql = { group = "org.postgresql", name = "postgresql", version.ref = "postgres" }
+slf4j-api = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
+slf4j-simple = { group = "org.slf4j", name = "slf4j-simple", version.ref = "slf4j" }
+commons-math = { group = "org.apache.commons", name = "commons-math3", version = "3.6.1" }
+jackson-core = { group = "tools.jackson.core", name = "jackson-core", version.ref = "jackson" }
+jackson-dataformat-yaml = { group = "tools.jackson.dataformat", name = "jackson-dataformat-yaml", version.ref = "jackson" }

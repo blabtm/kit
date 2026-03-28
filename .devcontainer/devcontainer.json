@@ -1,0 +1,68 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/debian
+{
+    "name": "VEPP-2000 Collider Platform",
+    "image": "ghcr.io/blabtm/v2k.dev:latest",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+
+    "runArgs": [
+      "--network=host"
+    ],
+
+    "features": {
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+        "ghcr.io/devcontainers/features/go:1": {
+            "version": "1.25.5"
+        },
+        "ghcr.io/devcontainers/features/java:1": {
+            "version": "21",
+            "installGradle": true,
+            "gradleVersion": "8.14"
+        },
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "22.20.0"
+        },
+        "ghcr.io/devcontainers/features/conda:1": {},
+        "ghcr.io/devcontainers-extra/features/protoc:1": {
+            "version": "33.5"
+        },
+        "ghcr.io/devcontainers-extra/features/go-task:1": {},
+        "ghcr.io/guiyomh/features/mage:0": {}
+    },
+
+    // Initialize container
+    "postCreateCommand": "./.devcontainer/postCreate.sh",
+
+    // Initialize container
+    "postStartCommand": "./.devcontainer/postStart.sh",
+
+    // Caches
+    "mounts": [
+        "source=~/.ssh,target=/home/vscode/.ssh,type=bind",
+        "source=gradle-cache,target=/home/vscode/.gradle,type=volume"
+    ],
+
+    // Use 'forwardPorts' to make a list of ports inside the container available locally.
+    "forwardPorts": [],
+
+    // Configure tool-specific properties.
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-azuretools.vscode-containers",
+                "golang.go",
+                "ms-vscode.cpptools",
+                "-vscjava.vscode-java-pack",
+                "esbenp.prettier-vscode",
+                "drblury.protobuf-vsc",
+                "task.vscode-task",
+                "platformio.platformio-ide",
+                "ms-toolsai.jupyter",
+                "github.vscode-github-actions",
+                "postman.postman-for-vscode"
+            ]
+        }
+    }
+}

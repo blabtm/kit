@@ -1,0 +1,70 @@
+# $schema: https://json-schema.org/draft/2020-12/schema
+
+definitions:
+  solver:
+    type: object
+    properties:
+      iter:
+        type: number
+        minimum: 1
+      eval:
+        type: number
+        minimum: 1
+      relCost:
+        type: number
+        minimum: 0
+    required:
+      - iter
+      - eval
+      - relCost
+
+  axis:
+    type: object
+    properties:
+      active:
+        type: boolean
+      weight:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+    required:
+      - active
+
+  axes:
+    type: object
+    properties:
+      x:
+        $ref: "#/definitions/axis"
+      z:
+        $ref: "#/definitions/axis"
+    required:
+      - x
+      - z
+
+  cam:
+    type: object
+    properties:
+      name:
+        type: string
+      axes:
+        $ref: "#/definitions/axes"
+    required:
+      - name
+      - axes
+
+type: object
+properties:
+  replay:
+    type: number
+    minimum: 0
+  solver:
+    description: |
+      Solver-specific configurations.
+    $ref: "#/definitions/solver"
+  cams:
+    type: array
+    items:
+      $ref: "#/definitions/ccd"
+required:
+  - solver
+  - cams

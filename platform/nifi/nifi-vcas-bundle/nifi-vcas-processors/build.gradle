@@ -1,0 +1,16 @@
+plugins {
+    id("java")
+}
+
+group = "org.blab.v2k.nifi"
+version = parent.version
+
+dependencies {
+    annotationProcessor("org.projectlombok:lombok:1.18.42")
+
+    compileOnly("org.projectlombok:lombok:1.18.42")
+    compileOnly("org.apache.nifi:nifi-api:2.5.0")
+
+    implementation("org.apache.nifi:nifi-utils:2.7.0")
+    implementation(project(":libs:java:vcas"))
+}

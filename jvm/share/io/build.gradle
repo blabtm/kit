@@ -1,0 +1,20 @@
+plugins {
+    id("java-library")
+}
+
+group = "org.blab.v2k"
+version = "0.0.0"
+
+dependencies {
+    annotationProcessor(libs.lombok)
+    compileOnlyApi(libs.lombok)
+
+    compileOnlyApi(libs.flink.streaming.java)
+    compileOnlyApi(libs.flink.connector.base)
+
+    api(project(":share:math"))
+    api(libs.flink.connector.kafka)
+    api(libs.kafka.schema.registry.client)
+    api(libs.kafka.protobuf.serializer)
+    api(libs.protobuf)
+}

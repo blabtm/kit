@@ -1,0 +1,11 @@
+version: '3'
+
+includes:
+  em-es.sim: 
+    taskfile: ./em-es.sim/Taskfile.yaml
+    dir: ./em-es.sim
+
+tasks:
+  clean:
+    deps:
+      - em-es.sim:clean

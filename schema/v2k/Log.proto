@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package v2k;
+
+option java_package = "org.blab.v2k";
+
+message Log {
+  enum Level {
+    DEBUG = 0;
+    INFO = 1;
+    WARN = 2;
+    ERROR = 3;
+    FATAL = 4;
+  }
+
+  int64 time = 1;
+  Level level = 2;
+  string message = 3;
+}

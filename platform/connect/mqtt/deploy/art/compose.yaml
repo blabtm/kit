@@ -1,0 +1,47 @@
+networks:
+  v2k:
+    external: true
+
+services:
+  connect:
+    image: docker.redpanda.com/redpandadata/connect
+    entrypoint: /bin/sh
+    command: -c 'echo "$$CONNECT" > /tmp/connect.yaml && /redpanda-connect -c /tmp/connect.yaml'
+    environment:
+      CONNECT: |
+        input:
+          mqtt:
+            urls: ["tcp://$MQ_HOST:$MQ_MQTT_PORT"]
+            topics: ["$share/connect/vepp/#"]
+            client_id: "connect-node-${! uuid_v4() }"
+
+        pipeline:
+          processors:
+            - msgpack:
+                operator: "to_json"
+            - mapping: |
+                let topic = meta("mqtt_topic").replace_all("/", ".")
+
+                meta schema = match {
+                  $topic.re_match("vepp.ccd.*.sigma_[xz]") => "v2k.beam.AxisSize"
+                  _ => if this.value.type() == "number" {
+                    "v2k.GenericNumber"
+                  } else {
+                    "v2k.GenericString"
+                  }
+                }
+
+                meta topic = $topic
+            - schema_registry_encode:
+                url: "http://$SR_HOST:$SR_PORT"
+                subject: ${! meta("schema") }
+
+        output:
+          kafka_franz:
+            seed_brokers: ["$RP_KAFKA_HOST:$RP_KAFKA_PORT"]
+            topic: ${! meta("topic") }
+
+    networks:
+      - v2k
+    deploy:
+      replicas: 1

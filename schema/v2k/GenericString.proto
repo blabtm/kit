@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package v2k;
+
+// GenericString is a fallback type for records
+// with the value of JSON type `string`.
+message GenericString {
+  int64  time  = 1;
+  string value = 2;
+}

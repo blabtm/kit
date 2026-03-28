@@ -1,0 +1,11 @@
+plugins {
+    id("io.github.lhotari.gradle-nar-plugin") version "0.5.1"
+}
+
+group = "org.blab.v2k.nifi"
+version = parent.version
+
+dependencies {
+    implementation(project(":platform:nifi:nifi-vcas-bundle:nifi-vcas-processors"))
+    nar('org.apache.nifi:nifi-standard-services-api-nar:2.7.0')
+}

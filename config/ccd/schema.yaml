@@ -1,0 +1,41 @@
+# $schema: https://json-schema.org/draft/2020-12/schema
+
+definitions:
+  axis:
+    type: object
+    properties:
+      beta:
+        type: number
+      dispersion:
+        type: number
+    required:
+      - beta
+      - dispersion
+
+  cam:
+    type: object
+    properties:
+      name:
+        type: string
+      axes:
+        type: object
+        properties:
+          x:
+            $ref: "#/definitions/axis"
+          z:
+            $ref: "#/definitions/axis"
+        required:
+          - x
+          - z
+    required:
+      - name
+      - axes
+
+type: object
+properties:
+  cams:
+    type: array
+    items:
+      $ref: "#/definitions/ccd"
+required:
+  - ccd

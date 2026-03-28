@@ -1,0 +1,16 @@
+plugins {
+    id("java-library")
+}
+
+group = "org.blab.v2k"
+version = "0.0.0"
+
+dependencies {
+    annotationProcessor(libs.lombok)
+    compileOnlyApi(libs.lombok)
+    compileOnlyApi(libs.slf4j.api)
+
+    api(libs.postgresql)
+
+    testImplementation(libs.slf4j.simple)
+}

@@ -1,0 +1,10 @@
+name: solenoid
+channels:
+  - conda-forge
+dependencies:
+  - fenics-dolfinx
+  - mpich
+  - pyvista
+  - numpy
+  - python-gmsh
+  - ipykernel

@@ -1,0 +1,40 @@
+version: "3"
+
+vars:
+  DOCKER_REGISTRY: ghcr.io/blabtm
+  SCHEMA_DIR: "{{.ROOT_DIR}}/schema"
+  CONFIG_DIR: "{{.ROOT_DIR}}/config"
+  TOOLS_DIR: "{{.ROOT_DIR}}/tools"
+
+includes:
+  platform:
+    taskfile: ./platform/Taskfile.yaml
+    dir: ./platform
+  native:
+    taskfile: ./native/Taskfile.yaml
+    dir: ./native
+  jvm:
+    taskfile: ./jvm/Taskfile.yaml
+    dir: ./jvm
+  py:
+    taskfile: ./py/Taskfile.yaml
+    dir: ./py
+
+tasks:
+  sync:
+    desc: synchronize service deployments
+    dotenv:
+      - platform/env/secret.env
+      - platform/env/build.local.env
+      - platform/env/build.env
+    cmds:
+      - "{{.TOOLS_DIR}}/sync/sync.sh"
+  deploy:
+    desc: deploy platform to the swarm
+    dotenv:
+      - platform/env/secret.env
+      - platform/env/build.local.env
+      - platform/env/build.env
+    cmds:
+      - task: sync
+      - task: platform:deploy

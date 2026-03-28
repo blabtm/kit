@@ -1,0 +1,13 @@
+plugins {
+    id("java-library")
+}
+
+group = "org.blab.v2k.vcas"
+version = "0.0.0"
+
+dependencies {
+    compileOnly(libs.flink.streaming.java)
+    compileOnly(libs.flink.connector.base)
+
+    implementation(project(":libs:java:vcas"))
+}

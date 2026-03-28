@@ -1,0 +1,6 @@
+version: '3'
+
+includes:
+  hfr-v: 
+    taskfile: ./hfr-v/Taskfile.yaml
+    dir: ./hfr-v

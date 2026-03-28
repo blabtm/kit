@@ -1,0 +1,22 @@
+plugins {
+    id("common")
+    id("application")
+}
+
+version = "0.0.0"
+
+dependencies {
+    compileOnly(libs.flink.streaming.java)
+    compileOnly(libs.flink.connector.base)
+
+    implementation(libs.flink.connector.kafka)
+    implementation(libs.kafka.schema.registry.client)
+    implementation(libs.flink.protobuf)
+
+    implementation(project(":share:math"))
+    implementation(project(":share:io"))
+}
+
+application {
+    mainClass = "org.blab.v2k.em_es.Application"
+}

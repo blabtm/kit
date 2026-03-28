@@ -1,0 +1,6 @@
+[submodule "platform/grafana/grafana-kafka-datasource"]
+	path = platform/grafana/grafana-kafka-datasource
+	url = git@github.com:blabtm/grafana-kafka-datasource
+[submodule "platform/mq"]
+	path = platform/mq
+	url = git@github.com:blabtm/mq.git

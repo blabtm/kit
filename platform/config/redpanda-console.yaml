@@ -1,0 +1,14 @@
+kafka:
+  brokers: ["$RP_KAFKA_HOST:$RP_KAFKA_PORT"]
+schemaRegistry:
+  enabled: true
+  urls: ["http://$SR_HOST:$SR_PORT"]
+redpanda:
+  adminApi:
+    enabled: true
+    urls: ["http://kafka:9644"]
+    authentication:
+      basic:
+        username: $RP_USER
+        password: $RP_PASS
+      impersonateUser: false
