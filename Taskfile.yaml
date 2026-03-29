@@ -29,6 +29,13 @@ tasks:
       - platform/env/build.env
     cmds:
       - "{{.TOOLS_DIR}}/sync/sync.sh"
+  setup:
+    dotenv:
+      - platform/env/secret.env
+      - platform/env/build.local.env
+      - platform/env/build.env
+    cmds:
+      - "{{.TOOLS_DIR}}/sync/postDeploy.sh"
   deploy:
     desc: deploy platform to the swarm
     dotenv:
@@ -38,3 +45,4 @@ tasks:
     cmds:
       - task: sync
       - task: platform:deploy
+
