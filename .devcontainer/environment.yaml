@@ -5,3 +5,4 @@ dependencies:
   - ipykernel
   - protobuf
   - platformio
+  - cmake
