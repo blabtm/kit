@@ -1,69 +1,101 @@
 # VEPP-2000 Collider Platform
 
-## Administration Guide
+## Руководство по администрированию
 
-### Service
+### Сервисы
 
-Service is a single deployment unit defined on the platform. The simplest service definition is:
+Сервис -- это отдельная единица развёртывания, определённая на платформе. Простейшее определение сервиса выглядит следующим образом:
 
 ```yaml
 driver: docker
 ```
 
-Here we say, that the service is a docker container. That's all.
+Здесь мы указываем, что сервис является Docker-контейнером.
 
-#### Driver
+#### Драйвер
 
-_Service Driver_ is an isolated deployment environment. Driver's abstraction includes the following
-methods:
+_Драйвер сервиса_ -- это изолированная среда развёртывания. Абстракция драйвера включает следующие
+методы:
 
-- **Ps** - get service's current status
-- **Up** - trigger service to start
-- **Down** - trigger service to stop
+- **Ps** -- получить текущий статус сервиса
+- **Up** -- запустить сервис
+- **Down** -- остановить сервис
 
-At the moment, platform supports the following set of drivers:
+На данный момент платформа поддерживает следующий набор драйверов:
 
-- `docker` - containerized application on the Swarm cluster
-- `flink` - job on the Flink cluster (**in development**)
+- `docker` — контейнеризированное приложение в кластере Swarm
 
-It's the developer's job to choose the driver and provide all the necessary artifacts (e.g. create
-Dockerfile or assemble fat-jar). From the administrator's perspective, all the services are hidden
-behind the driver's abstraction.
+Выбор драйвера и подготовка всех необходимых артефактов (например, создание Dockerfile) -- задача разработчика. С точки зрения администратора, все сервисы скрыты за абстракцией драйвера.
 
-#### Service Manager
+#### Менеджер сервисов
 
-_Service Manager_ is a middleware to provide unified access to platform services and their
-configurations using driver's abstraction.
+_Менеджер сервисов_ -- это промежуточное ПО для обеспечения унифицированного доступа к сервисам платформы и их конфигурациям с использованием абстракции драйвера.
 
-Service Manager provides REST API and command line interface. For more information, see the
-[Service Manager Docs](platform/sm/README.md)
+Менеджер сервисов предоставляет REST API и интерфейс командной строки. Подробнее см. в [документации менеджера](platform/sm/README.md).
 
-### Build System
+### Сборка и запуск
 
-The platform repository is polyglot. Each language family employing it's own, specific build system.
-Despite this, no knowledge about all the build systems in the project required from the
-administrator. To achieve this, simple build layer was introduced: [Taskfile](https://taskfile.dev).
+#### Система сборки
 
-You can list all available tasks and there description:
+Репозиторий платформы является полиглотным. Каждое семейство языков использует свою специфическую систему сборки. Несмотря на это, от администратора не требуется знание всех систем сборки в проекте. Для достижения этой цели был введён простой слой сборки: [Taskfile](https://taskfile.dev).
+
+Просмотреть все доступные задачи и их описания:
 
 ```bash
 task --list-all
 ```
 
-For example, to inject the secrets and deploy the platform, one can run this:
+Например, чтобы развернуть платформу, можно выполнить команду
 
 ```bash
-task platform:deploy
+task deploy
 ```
 
-### Configuration
+Помимо служебных задач, каждый сервис определяет собственные задачи для сборки и запуска. Структура задач полностью соответствует структуре репозитория. Так, для сервиса, расположенного в `jvm/em-es` задачи будут иметь вид `jvm:em-es:*`. 
 
-Service-specific configurations are located in the `config` directory. Platform-specific
-configurations are located in the `platform/config` directory. Platform secrets are located in the
-`platform/secret/secret.env` file.
+Для большинства сервисов предусмотрена команда `image` для сборки соответствующиего Docker образа. Например, чтобы собрать образ менеджера сервисов, достаточно выполнить команду
 
-## Operation Guide
+```bash
+task platform:sm:image
+```
 
-Everything you need as a VEPP-2000 collider operator is available directly from the operator's
-platform. Each service is represented as a single app, including it's configurations, related
-visualizations and documentation.
+#### Конфигурация
+
+Конфигурации, специфичные для сервисов, расположены в директории `config`. После развертывания, эта директория будет доступна в сети по протоколу NFS и смонтирована во все запущенные на платформе сервисы в режиме чтения. Таким образом, каждый сервис может получить все интересующие его конфигурации средствами файловой системы.
+
+Изменения конфигураций, вносимые через платформу оператора, делаются в директории `config`. Это обеспечивает единый источник истины и открывает возможности для версионирования (т.к. директория `config` находится в репозитории под управлением Git). Так, могут быть зафиксированы изменения за некоторый период времени, восстановлена предыдущая версия и обеспечена синхронизация с удаленным репозиторием.
+
+Следует обратить особое внимание, что конфигурации сервисов не должны содержать конфиденциальной информации. Процесс внедрения такой информации в сервисы рассмотрен далее.
+
+Конфигурации сервисов платформы расположены в каталоге `platform/config`. В отличие от конфигураций обычных сервисов, которые монтируются напрямую каждому сервису, конфигурации платформы регистрируются в Docker Swarm Secrets и доступны каждому сервису индивидуально.
+
+#### Переменные и секреты
+
+Для более гибкого и безопасного управления инфраструктурой, предусмотрены переменные и секреты. Они задаются в виде переменных окружения (Environment Variables) и располагаются в директории `platform/env`:
+
+- `secret.env` -- содержит конфиденциальные переменные, такие как информация для доступа к БД;
+- `build.env` -- содержит обычные переменные.
+
+Различие между секретами и обычными переменными только в том, что секреты не индексируются в VCS.
+
+Переменные и секреты _внедряются_ в конфигурационные файлы платформы и инфраструктурные файлы командой
+
+```bash
+task sync
+```
+
+Как было указано выше, конфигурационные файлы сервисов не должны содержать переменных окружения. Однако, если сервису нужно сообщить значение некоторой переменной, это можно сделать через инфраструктурные файлы. Например, для Docker сервисов переменные окружения будут внедряться в соответствующие `compose.yaml` файлы.
+
+#### Ввод в эксплуатацию
+
+Для ввода платформы в эксплуатацию достаточно выполнить одну команду:
+
+```bash
+task deploy
+```
+
+Необходимые файлы будут синхронизированы, переменные внедрены и сервисы платформы будут запущены на кластере Docker Swarm в соответствии с `platform/compose.yaml`.
+
+## Руководство по эксплуатации
+
+Всё, что нужно оператору коллайдера VEPP-2000, доступно непосредственно с портала оператора. Каждый сервис представлен как отдельное приложение, включая его конфигурацию, визуализацию и документацию.
