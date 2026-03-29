@@ -4,3 +4,15 @@
 [submodule "platform/mq"]
 	path = platform/mq
 	url = git@github.com:blabtm/mq.git
+[submodule "native/librdkafka"]
+	path = native/librdkafka
+	url = https://github.com/confluentinc/librdkafka.git
+[submodule "native/librdkafka-cpp"]
+	path = native/librdkafka-cpp
+	url = https://github.com/morganstanley/modern-cpp-kafka.git
+[submodule "native/em-es.cpp/app"]
+	path = native/em-es.cpp/app
+	url = git@github.com:blabtm/v2k.em-es.app.git
+[submodule "py/solenoid/app"]
+	path = py/solenoid/app
+	url = git@github.com:blabtm/v2k.solenoid.app.git
