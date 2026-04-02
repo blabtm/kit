@@ -1,6 +1,9 @@
-version: '3'
+version: "3"
 
 includes:
-  hfr-v: 
+  hfr-v:
     taskfile: ./hfr-v/Taskfile.yaml
     dir: ./hfr-v
+  em-es.cpp:
+    taskfile: ./em-es.cpp/Taskfile.yaml
+    dir: ./em-es.cpp

@@ -1,0 +1,11 @@
+{
+  "dependencies": [
+    "ceres",
+    "gtest",
+    "librdkafka",
+    "modern-cpp-kafka",
+    "protobuf",
+    "yaml-cpp",
+    "spdlog"
+  ]
+}
