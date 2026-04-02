@@ -19,7 +19,3 @@ tasks:
     cmds:
       - task: generate
       - docker build -t {{.DOCKER_REGISTRY}}/v2k.em-es.sim:latest .
-
-  clean:
-    cmds:
-      - rm -rf **/__pycache__
