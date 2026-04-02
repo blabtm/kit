@@ -1,8 +1,0 @@
-name: v2k
-channels:
-  - conda-forge
-dependencies:
-  - ipykernel
-  - protobuf
-  - platformio
-  - cmake
