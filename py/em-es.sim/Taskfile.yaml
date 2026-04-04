@@ -1,21 +1,10 @@
 version: "3"
 
 tasks:
-  generate:
-    cmds:
-      - protoc -I{{.SCHEMA_DIR}} --python_out=src v2k/beam/AxisSize.proto
-      - protoc -I{{.SCHEMA_DIR}} --python_out=src v2k/beam/Current.proto
-
   run:
     env:
       RP_URI: "${LOCALHOST}:9092"
       SR_URI: "http://${LOCALHOST}:9080"
       CONFIG_DIR: "{{.CONFIG_DIR}}"
     cmds:
-      - task: generate
       - python src/main.py
-
-  image:
-    cmds:
-      - task: generate
-      - docker build -t {{.DOCKER_REGISTRY}}/v2k.em-es.sim:latest .

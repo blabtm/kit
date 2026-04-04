@@ -1,0 +1,6 @@
+name: em-es.sim
+channels:
+  - conda-forge
+dependencies:
+  - pyyaml
+
