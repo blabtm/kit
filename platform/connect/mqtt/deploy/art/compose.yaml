@@ -12,18 +12,19 @@ services:
         input:
           mqtt:
             urls: ["tcp://$MQ_HOST:$MQ_MQTT_PORT"]
-            topics: ["$share/connect/vepp/#"]
-            client_id: "connect-node-${! uuid_v4() }"
+            topics: ["$$share/connect/VEPP/#"]
+            client_id: "connect-node-$${! uuid_v4() }"
 
         pipeline:
           processors:
             - msgpack:
                 operator: "to_json"
             - mapping: |
-                let topic = meta("mqtt_topic").replace_all("/", ".")
+                let topic = meta("mqtt_topic").replace_all("/", ".").lowercase()
 
                 meta schema = match {
-                  $topic.re_match("vepp.ccd.*.sigma_[xz]") => "v2k.beam.AxisSize"
+                  $$topic.re_match("vepp.current") => "v2k.beam.Current"
+                  $$topic.re_match("vepp.ccd.*.sigma_[xz]") => "v2k.beam.AxisSize"
                   _ => if this.value.type() == "number" {
                     "v2k.GenericNumber"
                   } else {
@@ -31,15 +32,15 @@ services:
                   }
                 }
 
-                meta topic = $topic
+                meta topic = $$topic
             - schema_registry_encode:
-                url: "http://$SR_HOST:$SR_PORT"
-                subject: ${! meta("schema") }
+                url: "http://$RP_HOST:$RP_SR_PORT"
+                subject: $${! meta("schema") }
 
         output:
           kafka_franz:
-            seed_brokers: ["$RP_KAFKA_HOST:$RP_KAFKA_PORT"]
-            topic: ${! meta("topic") }
+            seed_brokers: ["$RP_HOST:$RP_LAN_PORT"]
+            topic: $${! meta("topic") }
 
     networks:
       - v2k

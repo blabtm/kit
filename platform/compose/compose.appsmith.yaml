@@ -1,0 +1,18 @@
+networks:
+  v2k:
+    external: true
+
+volumes:
+  appsmith:
+
+services:
+  appsmith:
+    image: appsmith/appsmith-ee:latest
+    ports:
+      - target: 80
+        published: $APPSMITH_PORT
+        mode: ingress
+    volumes:
+      - appsmith:/appsmith-stacks
+    networks:
+      - v2k

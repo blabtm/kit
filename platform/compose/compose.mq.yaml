@@ -1,0 +1,23 @@
+networks:
+  v2k:
+    external: true
+
+secrets:
+  mq:
+    external: true
+
+services:
+  mq:
+    image: ghcr.io/blabtm/v2k.mq:latest
+    ports:
+      - target: 1883
+        published: $MQ_MQTT_PORT
+        mode: host
+      - target: 20041
+        published: $MQ_VCAS_PORT
+        mode: host
+    secrets:
+      - source: mq
+        target: /etc/mq/config.yaml
+    networks:
+      - v2k

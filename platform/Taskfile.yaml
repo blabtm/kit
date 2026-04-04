@@ -10,59 +10,61 @@ includes:
   mq:
     taskfile: ./mq/Taskfile.yaml
     dir: ./mq
+  connect:
+    taskfile: ./connect/Taskfile.yaml
+    dir: ./connect
 
 tasks:
+  sync:
+    desc: synchronize service deployments
+    dir: ..
+    cmds:
+      - "{{.TOOLS_DIR}}/sync/sync.sh"
+
   config:clean:
     desc: remove secrets
     cmds:
-      - docker secret rm mq
-      - docker secret rm redpanda
-      - docker secret rm redpanda-console
-    ignore_error: true
-    internal: true
+      - docker secret rm mq || true
+      - docker secret rm redpanda || true
+      - docker secret rm redpanda-console || true
 
   config:install:
     desc: inject secrets and install platform configurations
-    dotenv:
-      - env/secret.env
-      - env/build.local.env
-      - env/build.env
     cmds:
       - task: config:clean
-      - envsubst < config/mq.yaml | docker secret create mq -
-      - envsubst < config/redpanda.yaml | docker secret create redpanda -
-      - envsubst < config/redpanda-console.yaml | docker secret create redpanda-console -
-    internal: true
+      - envsubst < config/mq.yaml | docker secret create mq - || true
+      - envsubst < config/redpanda.yaml | docker secret create redpanda - || true
+      - envsubst < config/redpanda-console.yaml | docker secret create redpanda-console - || true
 
   network:create:
     desc: create internal docker network
     cmds:
-      - docker network create --driver overlay --attachable v2k
-    ignore_error: true
-    internal: true
+      - docker network create --driver overlay --attachable v2k || true
 
-  # task must be called from the root in order to sync before deploy,
-  # therefore it's internal
+  deploy:db:
+    cmds:
+      - docker stack deploy -c compose/compose.db.yaml {{.CLI_ARGS}} v2k_db
+
+  deploy:mq:
+    cmds:
+      - docker stack deploy -c compose/compose.mq.yaml {{.CLI_ARGS}} v2k_mq
+
+  deploy:rp:
+    cmds:
+      - docker stack deploy -c compose/compose.rp.yaml {{.CLI_ARGS}} v2k_rp
+
+  deploy:sm:
+    cmds:
+      - docker stack deploy -c compose/compose.sm.yaml {{.CLI_ARGS}} v2k_sm
+
   deploy:
     desc: deploy platform to the swarm
-    dotenv:
-      - env/secret.env
-      - env/build.local.env
-      - env/build.env
     cmds:
-      - task: network:create
-      - task: config:install
-      - envsubst < compose.yaml | docker stack deploy -c - v2k
-    internal: true
-
-  dev:deploy:
-    dotenv:
-      - env/secret.env
-      - env/build.local.env
-      - env/build.env
-    cmds:
-      - envsubst < compose.dev.yaml | docker compose -f - up -d
-
-  dev:stop:
-    cmds:
-      - docker compose -f compose.dev.yaml down
+      - |
+        docker compose                      \
+          -f compose/compose.mq.yaml        \
+          -f compose/compose.rp.yaml        \
+          -f compose/compose.sm.yaml        \
+          -f compose/compose.grafana.yaml   \
+          -f compose/compose.appsmith.yaml  \
+        config | docker stack deploy -c - v2k

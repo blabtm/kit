@@ -1,0 +1,6 @@
+version: "3"
+
+tasks:
+  mqtt:deploy:
+    cmds:
+      - docker compose -f mqtt/deploy/art/compose.yaml up

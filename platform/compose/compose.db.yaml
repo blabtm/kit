@@ -16,6 +16,6 @@ services:
       POSTGRES_PASSWORD: $DB_PASS
     volumes:
       - db:/var/lib/postgresql/data
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - $REPO_PATH/platform/db/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - v2k
