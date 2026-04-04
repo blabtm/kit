@@ -6,6 +6,11 @@ vars:
   CONFIG_DIR: "{{.ROOT_DIR}}/config"
   TOOLS_DIR: "{{.ROOT_DIR}}/tools"
 
+dotenv:
+  - platform/env/secret.env
+  - platform/env/build.local.env
+  - platform/env/build.env
+
 includes:
   platform:
     taskfile: ./platform/Taskfile.yaml
@@ -21,28 +26,14 @@ includes:
     dir: ./py
 
 tasks:
-  sync:
-    desc: synchronize service deployments
-    dotenv:
-      - platform/env/secret.env
-      - platform/env/build.local.env
-      - platform/env/build.env
+  rpk:profile:create:
     cmds:
-      - "{{.TOOLS_DIR}}/sync/sync.sh"
-  setup:
-    dotenv:
-      - platform/env/secret.env
-      - platform/env/build.local.env
-      - platform/env/build.env
+      - |
+        rpk profile create v2k                                  \
+          --set brokers=$RP_HOST:$RP_LAN_PORT                   \
+          --set schema_registry.addresses=$RP_HOST:$RP_SR_PORT
+
+  schema:install:
     cmds:
-      - "{{.TOOLS_DIR}}/sync/postDeploy.sh"
-  deploy:
-    desc: deploy platform to the swarm
-    dotenv:
-      - platform/env/secret.env
-      - platform/env/build.local.env
-      - platform/env/build.env
-    cmds:
-      - task: sync
-      - task: platform:deploy
+      - "{{.TOOLS_DIR}}/sync/schema-install.sh"
 
