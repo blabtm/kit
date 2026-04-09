@@ -14,7 +14,7 @@
 	path = native/extern/vcpkg
 	url = https://github.com/microsoft/vcpkg.git
 [submodule "wiki"]
-	path = wiki
+	path = docs
 	url = https://github.com/blabtm/v2k.wiki.git
 [submodule "config"]
 	path = config

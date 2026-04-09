@@ -1,0 +1,6 @@
+site_name: Service Manager
+
+nav:
+  - Overview: index.md
+
+

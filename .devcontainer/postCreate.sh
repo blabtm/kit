@@ -1,10 +1,13 @@
 #!/bin/bash
 
-conda init
+conda init && conda install -c conda-forge -y \
+  mkdocs                                      \
+  mkdocs-material                             \
+  mkdocs-monorepo-plugin
 
 go install github.com/magefile/mage@latest
 
-cd native/extern/vcpkg && . bootstrap-vcpkg.sh && cd /workspaces/v2k
+cd /workspaces/v2k/native/extern/vcpkg && . bootstrap-vcpkg.sh && cd /workspaces/v2k
 /workspaces/v2k/native/extern/vcpkg/vcpkg install protobuf
 sudo ln -sf                                                                               \
   /workspaces/v2k/native/extern/vcpkg/packages/protobuf_x64-linux/tools/protobuf/protoc-* \

@@ -1,0 +1,4 @@
+site_name: solenoid
+
+nav:
+  - Overview: index.md

@@ -1,0 +1,39 @@
+site_name: V2K Docs
+site_url: https://blabtm.github.com/v2k
+repo_url: https://github.com/blabtm/v2k
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - content.code.copy
+plugins:
+  - search
+  - monorepo
+  - typeset
+
+nav:
+  - Overview: "index.md"
+  - Services:
+    - Platform:
+        - Service Manager: "!include ./platform/sm/mkdocs.yaml"
+    - Estimation:
+      - Emittance & Energy spread: "!include ./jvm/em-es/mkdocs.yaml"
+    - Simulation:
+      - Solenoid:
+        - Magnetic Field: "!include ./py/solenoid/mkdocs.yaml"
+
+markdown_extensions:
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+
+extra_javascript:
+  - js/mathjax.js
+  - https://polyfill.io
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
