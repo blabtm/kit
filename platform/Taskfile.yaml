@@ -57,6 +57,14 @@ tasks:
     cmds:
       - docker stack deploy -c compose/compose.sm.yaml {{.CLI_ARGS}} v2k_sm
 
+  deploy:as:
+    cmds:
+      - docker stack deploy -c compose/compose.appsmith.yaml {{.CLI_ARGS}} v2k_as
+
+  deploy:gf:
+    cmds:
+      - docker stack deploy -c compose/compose.grafana.yaml {{.CLI_ARGS}} v2k_gf
+
   deploy:
     desc: deploy platform to the swarm
     cmds:
