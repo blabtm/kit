@@ -1,0 +1,12 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "taskfile",
+			"task": "docs:tex:paper:build",
+			"workspace": "/workspaces/v2k",
+			"label": "taskfile: docs:tex:paper:build",
+			"problemMatcher": []
+		}
+	]
+}

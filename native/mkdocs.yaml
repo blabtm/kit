@@ -1,0 +1,5 @@
+site_name: C / C++
+
+nav:
+  - Build: build.md
+  - Code Style: codestyle.md

@@ -12,6 +12,9 @@ dotenv:
   - platform/env/build.env
 
 includes:
+  docs:
+    taskfile: ./docs/Taskfile.yaml
+    dir: ./docs
   platform:
     taskfile: ./platform/Taskfile.yaml
     dir: ./platform
@@ -27,13 +30,18 @@ includes:
 
 tasks:
   rpk:profile:create:
+    status:
+      - test -n "$(rpk profile list | grep v2k)"
     cmds:
-      - |
-        rpk profile create v2k                                  \
-          --set brokers=$RP_HOST:$RP_LAN_PORT                   \
-          --set schema_registry.addresses=$RP_HOST:$RP_SR_PORT
+      - rpk profile create v2k
+    internal: true
+
+  rpk:profile:update:
+    deps: [rpk:profile:create]
+    cmds:
+      - rpk profile set brokers=$RP_HOST:$RP_LAN_PORT
+      - rpk profile set schema_registry.addresses=$RP_HOST:$RP_SR_PORT
 
   schema:install:
     cmds:
       - "{{.TOOLS_DIR}}/sync/schema-install.sh"
-
