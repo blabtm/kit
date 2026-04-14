@@ -22,13 +22,13 @@ struct AxesConfig {
   AxisConfig z;
 
   AxesConfig(YAML::Node const &node)
-      : x(AxisConfig(node["x"])), z(AxisConfig(node["z"])) {}
+      : x(node["x"]), z(node["z"]) {}
 };
 
 struct CamConfig {
   AxesConfig axes;
 
-  CamConfig(YAML::Node const &node) : axes(AxesConfig(node["axes"])) {}
+  CamConfig(YAML::Node const &node) : axes(node["axes"]) {}
 };
 
 struct Config {

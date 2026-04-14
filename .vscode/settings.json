@@ -1,6 +1,6 @@
 {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "prettier.configPath": ".devcontainer/.prettierrc",
+    "prettier.configPath": ".devcontainer/.prettierrc.yaml",
 
     "[go]": {
         "editor.defaultFormatter": "golang.go"
@@ -15,4 +15,6 @@
     },
 
     "editor.indentSize": "tabSize",
+    "prettier.useEditorConfig": false,
+    "prettier.requireConfig": true
 }

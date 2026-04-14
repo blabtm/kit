@@ -38,7 +38,7 @@ bool v2k::ems::Estimate(std::vector<AxisRealization> const &axes, double *x) {
   ceres::Solve(options, &problem, &summary);
 
   spdlog::debug(summary.BriefReport());
-  spdlog::debug("Emittance: {}, Energy Spread: {}", x[0], x[1]);
+  spdlog::debug("Emittance: {:.6e}, Energy Spread: {:.6e}", x[0], x[1]);
 
   return summary.IsSolutionUsable();
 }

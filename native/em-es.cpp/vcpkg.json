@@ -5,7 +5,13 @@
     "librdkafka",
     "modern-cpp-kafka",
     "protobuf",
+    "spdlog",
     "yaml-cpp",
-    "spdlog"
+    "abseil",
+    "jsoncons",
+    "nlohmann-json",
+    "openssl",
+    "cpr",
+    "avro-cpp"
   ]
 }

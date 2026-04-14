@@ -19,13 +19,13 @@ struct AxesSetup {
   AxisSetup z;
 
   AxesSetup(YAML::Node const &node)
-      : x(AxisSetup(node["x"])), z(AxisSetup(node["z"])) {}
+      : x(node["x"]), z(node["z"]) {}
 };
 
 struct CamSetup {
   AxesSetup axes;
 
-  CamSetup(YAML::Node const &node) : axes(AxesSetup(node["axes"])) {}
+  CamSetup(YAML::Node const &node) : axes(node["axes"]) {}
 };
 
 struct Config {
