@@ -33,6 +33,8 @@ for t in range(0, lifetime, 1):
     em = math.sqrt(i) * 1.640487e-5
     es = math.cbrt(i) * 0.000185
 
+    print(f'True: {em:e}, {es:e}')
+
     sock.sendall(f'name:VEPP/CURRENT|method:set|value:{i}\n'.encode())
 
     for cam in svc_conf['service']['cams']:
