@@ -4,4 +4,5 @@ overrides:
   - files: ["*.yaml"]
     options:
       tabWidth: 2
-
+plugins:
+  - prettier-plugin-latex

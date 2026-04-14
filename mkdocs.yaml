@@ -9,10 +9,13 @@ theme:
 plugins:
   - search
   - monorepo
-  - typeset
 
 nav:
   - Overview: "index.md"
+  - Build: "build.md"
+  - Conventions: "conventions.md"
+  - Language Guides:
+    - C / C++: "!include ./native/mkdocs.yaml"
   - Services:
     - Platform:
         - Service Manager: "!include ./platform/sm/mkdocs.yaml"

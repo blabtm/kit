@@ -1,4 +1,4 @@
-name: dev
+name: Pre-Build Dev Container Image
 on:
   workflow_dispatch:
   push:
@@ -20,7 +20,7 @@ jobs:
       - name: Login
         uses: docker/login-action@v2
         with:
-          registry: ghcr.io/fami-2026
+          registry: ghcr.io/blabtm
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 

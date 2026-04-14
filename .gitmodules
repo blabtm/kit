@@ -19,3 +19,9 @@
 [submodule "config"]
 	path = config
 	url = git@github.com:blabtm/v2k.config.git
+[submodule "native/extern/libsr"]
+	path = native/extern/libsr
+	url = https://github.com/confluentinc/libschemaregistry.git
+[submodule ".devcontainer/features"]
+	path = .devcontainer/features
+	url = git@github.com:blabtm/features.git

@@ -24,16 +24,17 @@
         "ghcr.io/devcontainers/features/node:1": {
             "version": "22.20.0"
         },
-        "ghcr.io/devcontainers-extra/features/cmake:1": {},
         "ghcr.io/devcontainers/features/conda:1": {},
-        "ghcr.io/devcontainers-extra/features/go-task:1": {}
+        "ghcr.io/devcontainers-extra/features/go-task:1": {},
+        "ghcr.io/blabtm/features/rpk:0.0.0": {},
+        "ghcr.io/devcontainers-extra/features/apt-get-packages:1": {
+            "packages": "gdb,cmake"
+        },
+        "ghcr.io/guiyomh/features/mage:0": {}
     },
 
     // Initialize container
     "postCreateCommand": ". .devcontainer/postCreate.sh",
-
-    // Initialize container
-    "postStartCommand": ". .devcontainer/postStart.sh",
 
     // Caches
     "mounts": [
