@@ -1,0 +1,21 @@
+version: "3"
+
+tasks:
+  setup:
+    status:
+      - test -n "$(conda env list | grep 'sol.mf')"
+    cmds:
+      - conda env create -f environment.yaml
+    internal: true
+
+  run:
+    deps: [setup]
+    env:
+      CONFIG_DIR: "{{.CONFIG_DIR}}"
+      BLOB_DIR: "{{.BLOB_DIR}}"
+    cmds:
+      - conda run -n sol.mf python src/main.py
+
+  image:
+    cmds:
+      - docker build -t {{.DOCKER_REGISTRY}}/sol.mf:latest .

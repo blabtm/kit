@@ -23,7 +23,7 @@ nav:
       - Emittance & Energy spread: "!include ./jvm/em-es/mkdocs.yaml"
     - Simulation:
       - Solenoid:
-        - Magnetic Field: "!include ./py/solenoid/mkdocs.yaml"
+        - Magnetic Field: "!include ./py/sol.mf/mkdocs.yaml"
 
 markdown_extensions:
   - pymdownx.arithmatex:

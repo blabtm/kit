@@ -3,7 +3,7 @@
 conda init
 task rpk:profile:update
 
-cd /workspaces/v2k/native/extern/vcpkg && . bootstrap-vcpkg.sh && cd /workspaces/v2k
+cd /workspaces/v2k/native/extern/vcpkg && sh bootstrap-vcpkg.sh && cd /workspaces/v2k
 
 /workspaces/v2k/native/extern/vcpkg/vcpkg install protobuf
 sudo ln -sf                                                                               \

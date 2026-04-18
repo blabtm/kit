@@ -1,27 +1,34 @@
 [submodule "platform/grafana/grafana-kafka-datasource"]
 	path = platform/grafana/grafana-kafka-datasource
 	url = git@github.com:blabtm/grafana-kafka-datasource
+	branch = trunk
 [submodule "platform/mq"]
 	path = platform/mq
 	url = git@github.com:blabtm/mq.git
+	branch = trunk
 [submodule "native/em-es.cpp/app"]
 	path = native/em-es.cpp/app
 	url = git@github.com:blabtm/v2k.em-es.app.git
+	branch = trunk
 [submodule "py/solenoid/app"]
 	path = py/solenoid/app
 	url = git@github.com:blabtm/v2k.solenoid.app.git
+	branch = trunk
 [submodule "native/extern/vcpkg"]
 	path = native/extern/vcpkg
 	url = https://github.com/microsoft/vcpkg.git
 [submodule "wiki"]
 	path = docs
-	url = https://github.com/blabtm/v2k.wiki.git
+	url = git@github.com:blabtm/v2k.wiki.git
+	branch = trunk
 [submodule "config"]
 	path = config
 	url = git@github.com:blabtm/v2k.config.git
+	branch = trunk
 [submodule "native/extern/libsr"]
 	path = native/extern/libsr
 	url = https://github.com/confluentinc/libschemaregistry.git
 [submodule ".devcontainer/features"]
 	path = .devcontainer/features
 	url = git@github.com:blabtm/features.git
+	branch = trunk
