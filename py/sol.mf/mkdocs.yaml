@@ -1,0 +1,4 @@
+site_name: sol.mf
+
+nav:
+  - Overview: index.md

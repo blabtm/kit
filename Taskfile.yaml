@@ -5,6 +5,7 @@ vars:
   SCHEMA_DIR: "{{.ROOT_DIR}}/schema"
   CONFIG_DIR: "{{.ROOT_DIR}}/config"
   TOOLS_DIR: "{{.ROOT_DIR}}/tools"
+  BLOB_DIR: "{{.ROOT_DIR}}/blob"
 
 dotenv:
   - platform/env/secret.env

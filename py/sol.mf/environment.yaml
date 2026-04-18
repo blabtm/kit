@@ -1,0 +1,11 @@
+name: sol.mf
+channels:
+  - conda-forge
+dependencies:
+  - fenics-dolfinx
+  - mpich
+  - pyvista
+  - numpy
+  - python-gmsh
+  - ipykernel
+  - pyyaml

@@ -1,5 +1,7 @@
 **/*.log
 **/*.txt
 
-.deploy
-.docs
+.deploy/
+.docs/
+
+blob/

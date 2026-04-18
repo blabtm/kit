@@ -1,7 +1,15 @@
 version: "3"
 
 tasks:
+  setup:
+    status:
+      - test -n "$(conda env list | grep 'em-es.sim')"
+    cmds:
+      - conda env create -f environment.yaml
+    internal: true
+
   run:
+    deps: [setup]
     env:
       RP_URI: "${LOCALHOST}:9092"
       SR_URI: "http://${LOCALHOST}:9080"
