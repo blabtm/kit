@@ -1,0 +1,8 @@
+name: paper
+
+services:
+  latex:
+    image: ghcr.io/blabtm/texlive:latest
+    command: sh -c 'while true; do wait; done'
+    volumes:
+      - $REPO_PATH/docs/tex/paper:/workdir

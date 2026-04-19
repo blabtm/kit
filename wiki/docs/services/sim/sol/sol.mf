@@ -1,1 +1,1 @@
-/workspaces/v2k/py/sol.mf/docs
+../../../../../py/sol.mf/docs/ru

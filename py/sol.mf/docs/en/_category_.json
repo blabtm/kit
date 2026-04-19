@@ -1,0 +1,8 @@
+{
+  "label": "Magnetic Field",
+  "link": {
+    "type": "generated-index",
+    "description": "Calculation of the magnetic field of a multi-coil solenoid."
+  }
+}
+

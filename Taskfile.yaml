@@ -13,9 +13,9 @@ dotenv:
   - platform/env/build.env
 
 includes:
-  docs:
-    taskfile: ./docs/Taskfile.yaml
-    dir: ./docs
+  wiki:
+    taskfile: ./wiki/Taskfile.yaml
+    dir: ./wiki
   platform:
     taskfile: ./platform/Taskfile.yaml
     dir: ./platform

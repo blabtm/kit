@@ -1,0 +1,9 @@
+*.log
+*.xml
+*.blg
+*.bbl
+*.toc
+*.bcf
+*.aux
+*.zip
+_minted

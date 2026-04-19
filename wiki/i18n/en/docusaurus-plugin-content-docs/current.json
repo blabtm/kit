@@ -1,0 +1,70 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.tutorialSidebar.category.Руководства": {
+    "message": "Guides",
+    "description": "The label for category 'Guides' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Руководства.link.generated-index.description": {
+    "message": "Languages Guides",
+    "description": "The generated-index page description for category 'Guides' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.C / C++": {
+    "message": "C / C++",
+    "description": "The label for category 'C / C++' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.C / C++.link.generated-index.description": {
+    "message": "C & C++ development guides.",
+    "description": "The generated-index page description for category 'C / C++' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Инфраструктура": {
+    "message": "Infrastructure",
+    "description": "The label for category 'Infrastructure' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Инфраструктура.link.generated-index.description": {
+    "message": "Software infrastructure of the complex management system.",
+    "description": "The generated-index page description for category 'Infrastructure' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Менеджер сервисов": {
+    "message": "Service Manager",
+    "description": "The label for category 'Service Manager' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Менеджер сервисов.link.generated-index.description": {
+    "message": "Central abstraction over heterogeneous software.",
+    "description": "The generated-index page description for category 'Service Manager' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Сервисы": {
+    "message": "Services",
+    "description": "The label for category 'Services' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Сервисы.link.generated-index.description": {
+    "message": "Documentation for individual services.",
+    "description": "The generated-index page description for category 'Сервисы' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Симуляция": {
+    "message": "Simulation",
+    "description": "The label for category 'Simulation' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Симуляция.link.generated-index.description": {
+    "message": "Numerical simulation of physical processes.",
+    "description": "The generated-index page description for category 'Симуляция' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Соленоид": {
+    "message": "Solenoid",
+    "description": "The label for category 'Solenoid' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Соленоид.link.generated-index.description": {
+    "message": "Multi-coil solenoid simulation for detectors.",
+    "description": "The generated-index page description for category 'Соленоид' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Магнитное поле": {
+    "message": "Magnetic Field",
+    "description": "The label for category 'Magnetic Field' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Магнитное поле.link.generated-index.description": {
+    "message": "Magnetic field calculation of multi-coil solenoid.",
+    "description": "The generated-index page description for category 'Магнитное поле' in sidebar 'tutorialSidebar'"
+  }
+}

@@ -10,12 +10,14 @@ sidebar_position: 1
 
 1. Инициализация сервиса
 
-    - Создание директории с соответствующим названием (см. [соглашения](../conventions.md))
+    - Создание директории с соответствующим названием (см. [соглашения](../../conventions.md))
+
     ```bash
     mkdir native/em-es.cpp && cd native/em-es.cpp
     ```
 
     - Инициализация `vcpkg`:
+
     ```bash
     vcpkg new --application
     ```

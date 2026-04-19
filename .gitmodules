@@ -10,17 +10,13 @@
 	path = native/em-es.cpp/app
 	url = git@github.com:blabtm/v2k.em-es.app.git
 	branch = trunk
-[submodule "py/solenoid/app"]
-	path = py/solenoid/app
-	url = git@github.com:blabtm/v2k.solenoid.app.git
+[submodule "py/sol.mf/app"]
+	path = py/sol.mf/app
+	url = git@github.com:blabtm/v2k.sol.mf.app.git
 	branch = trunk
 [submodule "native/extern/vcpkg"]
 	path = native/extern/vcpkg
 	url = https://github.com/microsoft/vcpkg.git
-[submodule "wiki"]
-	path = docs
-	url = git@github.com:blabtm/v2k.wiki.git
-	branch = trunk
 [submodule "config"]
 	path = config
 	url = git@github.com:blabtm/v2k.config.git

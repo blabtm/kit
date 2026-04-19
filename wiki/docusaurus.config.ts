@@ -4,8 +4,10 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
+const isDev = process.env.NODE_ENV === 'development';
+
 const config: Config = {
-  title: 'v2k',
+  title: 'VEPP-2000 Open Platform',
   tagline: 'Dinosaurs are cool',
   favicon: 'img/favicon.ico',
 
@@ -16,9 +18,10 @@ const config: Config = {
 
   // Set the production url of your site here
   url: 'https://your-docusaurus-site.example.com',
+
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/',
+  baseUrl: isDev ? '/' : '/v2k/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
@@ -31,8 +34,8 @@ const config: Config = {
   // useful metadata like html lang. For example, if your site is ChrehypeKatexinese, you
   // may want to replace "en" with "zh-Hans".
   i18n: {
-    defaultLocale: 'en',
-    locales: ['en'],
+    defaultLocale: 'ru',
+    locales: ['ru', 'en'],
   },
 
   presets: [
@@ -84,6 +87,10 @@ const config: Config = {
         },
         {to: '/blog', label: 'Blog', position: 'left'},
         {
+          type: 'localeDropdown',
+          position: 'left',
+        },
+        {
           href: 'https://github.com/blabtm/v2k',
           label: 'GitHub',
           position: 'right',
@@ -97,8 +104,8 @@ const config: Config = {
           title: 'Docs',
           items: [
             {
-              label: 'Tutorial',
-              to: '/docs/intro',
+              label: 'Overview',
+              to: '/docs/overview',
             },
           ],
         },

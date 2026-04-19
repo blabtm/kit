@@ -1,0 +1,12 @@
+version: "3"
+
+tasks:
+  setup:
+    status:
+      - test -n "$(ls . | grep node_modules)"
+    cmds:
+      - npm install
+  build:
+    deps: [setup]
+    cmds:
+      - npm run build
