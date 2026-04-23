@@ -3,9 +3,9 @@
 	"tasks": [
 		{
 			"type": "taskfile",
-			"task": "docs:tex:paper:build",
+			"task": "wiki:paper:build",
 			"workspace": "/workspaces/v2k",
-			"label": "taskfile: docs:tex:paper:build",
+			"label": "Build the Paper",
 			"problemMatcher": []
 		}
 	]

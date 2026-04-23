@@ -1,5 +1,10 @@
 version: "3"
 
+includes:
+  paper:
+    taskfile: ./paper/Taskfile.yaml
+    dir: ./paper
+
 tasks:
   setup:
     status:
