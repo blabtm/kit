@@ -28,3 +28,6 @@
 	path = .devcontainer/features
 	url = git@github.com:blabtm/features.git
 	branch = trunk
+[submodule "wiki/paper"]
+	path = wiki/paper
+	url = git@github.com:blabtm/v2k.paper.git
