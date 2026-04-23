@@ -2,14 +2,24 @@ networks:
   v2k:
     external: true
 
+volumes:
+  v2k-config:
+    external: true
+  v2k-blob:
+    external: true
+
 services:
-  sol.mf:
-    image: ghcr.io/blabtm/sol.mf:latest
+  sol-mf:
+    image: ghcr.io/blabtm/v2k.sol.mf:latest
     environment:
       CONFIG_DIR: /etc/config
       BLOB_DIR: /etc/blob
     volumes:
-      - $CONFIG_DIR:/etc/config
-      - $BLOB_DIR:/etc/blob
+      - v2k-config:/etc/config
+      - v2k-blob:/etc/blob
     networks:
       - v2k
+    deploy:
+      restart_policy:
+        condition: none
+

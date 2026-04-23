@@ -3,7 +3,6 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"io"
 	"os"
 
 	v1 "github.com/blabtm/v2k/platform/sm/rest/v1"

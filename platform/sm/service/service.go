@@ -6,7 +6,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -120,7 +119,7 @@ func GetConfigPath(name string) string {
 
 // GetDeployPath returns the absolute path to deployment artifacts for a service with the name.
 // It translates the dot-notation service name (e.g., `em-es.sim`)
-// into a directory path under storage root specified by the `CONFIG_PATH` environment variable
+// into a directory path under storage root specified by the `DEPLOY_PATH` environment variable
 // (e.g., `/etc/v2k/deploy/em-es/sim`).
 func GetDeployPath(name string) string {
 	return filepath.Join(deployPath, strings.ReplaceAll(name, ".", string(filepath.Separator)))

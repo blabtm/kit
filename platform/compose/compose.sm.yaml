@@ -12,11 +12,9 @@ services:
     environment:
       CONFIG_PATH: /etc/v2k/config
       DEPLOY_PATH: /etc/v2k/deploy
-      DOCS_PATH: /etc/v2k/docs
     volumes:
       - $REPO_PATH/config:/etc/v2k/config
       - $REPO_PATH/.deploy:/etc/v2k/deploy
-      - $REPO_PATH/.docs:/etc/v2k/docs
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - v2k

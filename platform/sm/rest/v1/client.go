@@ -68,7 +68,13 @@ func (c *Client) Ps(name string) (*service.Status, error) {
 }
 
 func (c *Client) Up(name string) error {
-	res, err := http.Get(c.Base + "/" + name + "/up")
+	req, err := http.NewRequest(http.MethodPut, c.Base+"/"+name+"/up", nil)
+
+	if err != nil {
+		return fmt.Errorf("http: %w", err)
+	}
+
+	res, err := http.DefaultClient.Do(req)
 
 	if err != nil {
 		return fmt.Errorf("http: %w", err)
@@ -80,7 +86,13 @@ func (c *Client) Up(name string) error {
 }
 
 func (c *Client) Down(name string) error {
-	res, err := http.Get(c.Base + "/" + name + "/down")
+	req, err := http.NewRequest(http.MethodPut, c.Base+"/"+name+"/down", nil)
+
+	if err != nil {
+		return fmt.Errorf("http: %w", err)
+	}
+
+	res, err := http.DefaultClient.Do(req)
 
 	if err != nil {
 		return fmt.Errorf("http: %w", err)
@@ -90,4 +102,3 @@ func (c *Client) Down(name string) error {
 
 	return nil
 }
-

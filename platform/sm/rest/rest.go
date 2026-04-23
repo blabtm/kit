@@ -3,18 +3,15 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
 
 	v1 "github.com/blabtm/v2k/platform/sm/rest/v1"
 
 	_ "github.com/blabtm/v2k/platform/sm/docker"
+	_ "github.com/blabtm/v2k/platform/sm/swarm"
 )
 
 func main() {
 	mux := http.NewServeMux()
-	fs := http.FileServer(http.Dir(os.Getenv("DOCS_PATH")))
-
-	mux.Handle("/v1/docs/", http.StripPrefix("/v1/docs/", fs))
 
 	mux.HandleFunc("GET /v1/svc", v1.Ls)
 	mux.HandleFunc("GET /v1/svc/{name}/ps", v1.Ps)

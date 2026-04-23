@@ -3,7 +3,7 @@ networks:
     external: true
 
 secrets:
-  mq:
+  v2k-mq:
     external: true
 
 services:
@@ -17,7 +17,7 @@ services:
         published: $MQ_VCAS_PORT
         mode: host
     secrets:
-      - source: mq
+      - source: v2k-mq
         target: /etc/mq/config.yaml
     networks:
       - v2k

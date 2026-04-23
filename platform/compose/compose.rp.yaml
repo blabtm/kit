@@ -3,9 +3,9 @@ networks:
     external: true
 
 secrets:
-  redpanda:
+  v2k-redpanda:
     external: true
-  redpanda-console:
+  v2k-redpanda-console:
     external: true
 
 services:
@@ -33,7 +33,7 @@ services:
       - --rpc-addr docker://0.0.0.0:33145
       - --advertise-rpc-addr docker://kafka:33145
     secrets:
-      - source: redpanda
+      - source: v2k-redpanda
         target: /etc/redpanda/.bootstrap.yaml
     environment:
       RP_BOOTSTRAP_PASSWORD: $RP_PASS
@@ -49,7 +49,7 @@ services:
     environment:
       CONFIG_FILEPATH: /etc/console/config.yaml
     secrets:
-      - source: redpanda-console
+      - source: v2k-redpanda-console
         target: /etc/console/config.yaml
     depends_on:
       - rp

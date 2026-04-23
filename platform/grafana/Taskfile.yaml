@@ -7,7 +7,6 @@ includes:
 
 tasks:
   image:
-    desc: build grafana's image
     deps:
       - grafana-kafka-datasource:build
     cmds:

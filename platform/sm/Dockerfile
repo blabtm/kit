@@ -6,7 +6,7 @@ COPY . .
 RUN go mod download
 RUN CGO_ENABLED=0 GOOS=linux go build -o /rest ./rest
 
-FROM alpine:latest
+FROM docker:cli
 
 WORKDIR /
 COPY --from=build /rest /rest

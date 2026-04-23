@@ -16,63 +16,104 @@ includes:
 
 tasks:
   sync:
-    desc: synchronize service deployments
     dir: ..
     cmds:
       - "{{.TOOLS_DIR}}/sync/sync.sh"
 
   config:clean:
-    desc: remove secrets
     cmds:
-      - docker secret rm mq || true
-      - docker secret rm redpanda || true
-      - docker secret rm redpanda-console || true
+      - docker secret rm v2k-mq || true
+      - docker secret rm v2k-redpanda || true
+      - docker secret rm v2k-redpanda-console || true
+
+  config:mq:install:
+    cmds:
+      - docker secret rm v2k-mq || true
+      - envsubst < config/mq.yaml | docker secret create v2k-mq -
+
+  config:rp:install:
+      - docker secret rm v2k-redpanda || true
+      - docker secret rm v2k-redpanda-console || true
+      - envsubst < config/redpanda.yaml | docker secret create v2k-redpanda -
+      - envsubst < config/redpanda-console.yaml | docker secret create v2k-redpanda-console -
 
   config:install:
-    desc: inject secrets and install platform configurations
     cmds:
-      - task: config:clean
-      - envsubst < config/mq.yaml | docker secret create mq - || true
-      - envsubst < config/redpanda.yaml | docker secret create redpanda - || true
-      - envsubst < config/redpanda-console.yaml | docker secret create redpanda-console - || true
+      - task: config:mq:install
+      - task: config:rp:install
+
+  manager:nfs:install:
+    cmds:
+      - envsubst < nfs/v2k.exports | sudo tee /etc/exports.d/v2k.exports
+    generates:
+      - /etc/exports.d/v2k.exports
+
+  manager:nfs:start:
+    deps: [nfs:install]
+    cmds:
+      - systemctl restart nfs-server.service
+
+  node:volumes:create:
+    cmds:
+      - |
+        docker volume create --driver local                             \
+          --opt type=nfs                                                \
+          --opt o=addr=$MANAGER_HOST,ro,nfsvers=4,nolock,soft,timeo=10  \
+          --opt device=:$REPO_PATH/config                               \
+        v2k-config
+      - |
+        docker volume create --driver local                             \
+          --opt type=nfs                                                \
+          --opt o=addr=$MANAGER_HOST,rw,nfsvers=4,nolock,soft,timeo=10  \
+          --opt device=:$REPO_PATH/blob                                 \
+        v2k-blob
 
   network:create:
-    desc: create internal docker network
+    status:
+      - test -n "$(docker network ls --filter driver=overlay --filter name=v2k)"
     cmds:
-      - docker network create --driver overlay --attachable v2k || true
+      - docker network create --driver overlay --attachable v2k
+    internal: true
 
   deploy:db:
+    deps: [network:create]
     cmds:
       - docker stack deploy -c compose/compose.db.yaml {{.CLI_ARGS}} v2k_db
 
   deploy:mq:
+    deps: [network:create, config:mq:install]
     cmds:
       - docker stack deploy -c compose/compose.mq.yaml {{.CLI_ARGS}} v2k_mq
 
   deploy:rp:
+    deps: [network:create, config:rp:install]
     cmds:
       - docker stack deploy -c compose/compose.rp.yaml {{.CLI_ARGS}} v2k_rp
 
   deploy:sm:
+    deps: [network:create, sync]
     cmds:
       - docker stack deploy -c compose/compose.sm.yaml {{.CLI_ARGS}} v2k_sm
 
   deploy:as:
+    deps: [network:create]
     cmds:
-      - docker stack deploy -c compose/compose.appsmith.yaml {{.CLI_ARGS}} v2k_as
+      - docker stack deploy -c compose/compose.as.yaml {{.CLI_ARGS}} v2k_as
 
   deploy:gf:
+    deps: [network:create]
     cmds:
-      - docker stack deploy -c compose/compose.grafana.yaml {{.CLI_ARGS}} v2k_gf
+      - docker stack deploy -c compose/compose.gf.yaml {{.CLI_ARGS}} v2k_gf
 
   deploy:
-    desc: deploy platform to the swarm
+    deps: [network:create, config:install]
     cmds:
+      - echo $MQ_MQTT_PORT
       - |
-        docker compose                      \
-          -f compose/compose.mq.yaml        \
-          -f compose/compose.rp.yaml        \
-          -f compose/compose.sm.yaml        \
-          -f compose/compose.grafana.yaml   \
-          -f compose/compose.appsmith.yaml  \
-        config | docker stack deploy -c - v2k
+        docker stack config          \
+          -c compose/compose.mq.yaml \
+          -c compose/compose.rp.yaml \
+          -c compose/compose.sm.yaml \
+          -c compose/compose.gf.yaml \
+          -c compose/compose.as.yaml \
+        | docker stack deploy -c - v2k

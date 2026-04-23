@@ -18,4 +18,4 @@ tasks:
 
   image:
     cmds:
-      - docker build -t {{.DOCKER_REGISTRY}}/sol.mf:latest .
+      - docker build -t {{.DOCKER_REGISTRY}}/v2k.sol.mf:latest .

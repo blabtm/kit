@@ -1,1 +1,1 @@
-driver: docker
+driver: swarm

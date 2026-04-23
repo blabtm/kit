@@ -4,11 +4,17 @@ vars:
   VERSION: 0.0.0
 
 tasks:
-  deb:amd64:
+  amd64:
     env:
       GOOS: linux
       GOARCH: amd64
       CGO_ENABLED: 0
+    cmds:
+      - go build -o sm_{{.VERSION}}_amd64 .
+    generates:
+      - sm_{{.VERSION}}_amd64
+
+  amd64:deb:
     cmds:
       - mkdir -p sm_{{.VERSION}}_amd64
       - mkdir -p sm_{{.VERSION}}_amd64/usr/local/bin
@@ -28,11 +34,23 @@ tasks:
         EOF
       - dpkg-deb --build sm_{{.VERSION}}_amd64
       - rm -r sm_{{.VERSION}}_amd64
+    generates:
+      - sm_{{.VERSION}}_amd64.deb
+
+  arm64:
+    env:
+      GOOS: linux
+      GOARCH: arm64
+      CGO_ENABLED: 0
+    cmds:
+      - go build -o sm_{{.VERSION}}_arm64 .
+    generates:
+      - sm_{{.VERSION}}_arm64
+
   image:
-    desc: build service manager's image
     cmds:
       - docker build -t {{.DOCKER_REGISTRY}}/v2k.sm:latest .
+
   publish:
-    desc: publish service manager's image
     cmds:
       - docker push {{.DOCKER_REGISTRY}}/v2k.sm:latest

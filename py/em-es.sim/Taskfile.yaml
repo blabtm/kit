@@ -15,4 +15,4 @@ tasks:
       SR_URI: "http://${LOCALHOST}:9080"
       CONFIG_DIR: "{{.CONFIG_DIR}}"
     cmds:
-      - python src/main.py
+      - conda run -n em-es.sim python src/main.py

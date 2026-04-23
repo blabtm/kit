@@ -1,9 +1,10 @@
-FROM conda/miniconda3:latest
+FROM condaforge/miniforge3:latest
 
 WORKDIR /svc
 COPY environment.yaml .
 
-RUN conda env create -f environment.yaml
+RUN mamba env create -f environment.yaml
+RUN mamba clean -afy
 
 COPY . .
-ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "sol.mf", "python", "src/main.py"]
+ENTRYPOINT ["mamba", "run", "-n", "sol.mf", "python", "src/main.py"]
