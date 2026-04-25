@@ -4,6 +4,7 @@ includes:
   grafana-kafka-datasource: 
     taskfile: ./grafana-kafka-datasource/Taskfile.yaml
     dir: ./grafana-kafka-datasource
+    optional: true
 
 tasks:
   image:

@@ -5,6 +5,9 @@ on:
   push:
     branches:
       - trunk
+    paths:
+      - "wiki/**"
+      - "**/docs/**"
 
 jobs:
   pages-build:

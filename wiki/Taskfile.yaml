@@ -4,6 +4,7 @@ includes:
   paper:
     taskfile: ./paper/Taskfile.yaml
     dir: ./paper
+    optional: true
 
 tasks:
   setup:
