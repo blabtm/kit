@@ -1,0 +1,27 @@
+name: Release Service Manager
+on:
+  push:
+    tags:
+      - "platform/sm/v*.*.*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/blabtm/v2k.dev:latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Build
+        run: task platform:sm:build:all
+
+      - name: Release
+        uses: softprops/action-gh-release@v3
+        with:
+          working_directory: platform/sm
+          files: |
+            sm_*.*.*_amd64
+            sm_*.*.*_arm64
+            util/install.sh

@@ -4,7 +4,7 @@ vars:
   VERSION: 0.0.0
 
 tasks:
-  amd64:
+  build:amd64:
     env:
       GOOS: linux
       GOARCH: amd64
@@ -14,7 +14,7 @@ tasks:
     generates:
       - sm_{{.VERSION}}_amd64
 
-  amd64:deb:
+  build:amd64:deb:
     cmds:
       - mkdir -p sm_{{.VERSION}}_amd64
       - mkdir -p sm_{{.VERSION}}_amd64/usr/local/bin
@@ -37,7 +37,7 @@ tasks:
     generates:
       - sm_{{.VERSION}}_amd64.deb
 
-  arm64:
+  build:arm64:
     env:
       GOOS: linux
       GOARCH: arm64
@@ -46,6 +46,11 @@ tasks:
       - go build -o sm_{{.VERSION}}_arm64 .
     generates:
       - sm_{{.VERSION}}_arm64
+
+  build:all:
+    cmds:
+      - task: build:amd64
+      - task: build:arm64
 
   image:
     cmds:
