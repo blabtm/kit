@@ -10,7 +10,7 @@ The project uses [vcpkg](https://vcpkg.io) for managing external dependencies, w
 
 1. Service Initialization
 
-    - Create a directory with the appropriate name (see [conventions](../../conventions.md))
+    - Create a directory with the appropriate name (see [conventions](@site/docs/basics/conventions.md))
 
     ```bash
     mkdir native/em-es.cpp && cd native/em-es.cpp

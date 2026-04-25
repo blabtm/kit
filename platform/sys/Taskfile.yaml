@@ -1,0 +1,64 @@
+version: "3"
+
+tasks:
+  setup:
+    cmds:
+      - task: swarm:setup
+
+  nfs:setup:
+    cmds:
+      - envsubst < nfs/v2k.exports | sudo tee /etc/exports.d/v2k.exports
+      - sudo exportfs -ra
+    generates:
+      - /etc/exports.d/v2k.exports
+
+  swarm:setup:
+    cmds:
+      - docker swarm init || true
+      - task: swarm:volume:setup
+      - task: swarm:network:setup
+
+  swarm:volume:setup:
+    status:
+      - test -n "$(docker volume ls -q -f name=v2k-config)"
+      - test -n "$(docker volume ls -q -f name=v2k-blob)"
+    cmds:
+      - |
+        docker volume create --driver local                             \
+          --opt type=none                                               \
+          --opt o=bind,ro                                               \
+          --opt device=$REPO_PATH/config                                \
+        v2k-config
+      - |
+        docker volume create --driver local                             \
+          --opt type=none                                               \
+          --opt o=bind,rw                                               \
+          --opt device=$REPO_PATH/blob                                  \
+        v2k-blob
+    internal: true
+
+  swarm:volume:nfs:setup:
+    status:
+      - test -n "$(docker volume ls -q -f name=v2k-config)"
+      - test -n "$(docker volume ls -q -f name=v2k-blob)"
+    cmds:
+      - |
+        docker volume create --driver local                             \
+          --opt type=nfs                                                \
+          --opt o=addr=$MANAGER_HOST,ro,nfsvers=4,nolock,soft,timeo=10  \
+          --opt device=:$REPO_PATH/config                               \
+        v2k-config
+      - |
+        docker volume create --driver local                             \
+          --opt type=nfs                                                \
+          --opt o=addr=$MANAGER_HOST,rw,nfsvers=4,nolock,soft,timeo=10  \
+          --opt device=:$REPO_PATH/blob                                 \
+        v2k-blob
+    internal: true
+
+  swarm:network:setup:
+    status:
+      - test -n "$(docker network ls -q -f driver=overlay -f name=v2k)"
+    cmds:
+      - docker network create --driver overlay --attachable v2k
+    internal: true

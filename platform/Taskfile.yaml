@@ -1,6 +1,9 @@
 version: "3"
 
 includes:
+  sys:
+    taskfile: ./sys/Taskfile.yaml
+    dir: ./sys
   grafana:
     taskfile: ./grafana/Taskfile.yaml
     dir: ./grafana
@@ -16,100 +19,17 @@ includes:
     dir: ./connect
 
 tasks:
-  sync:
-    dir: ..
+  init:
     cmds:
-      - "{{.TOOLS_DIR}}/sync/sync.sh"
-
-  config:clean:
-    cmds:
-      - docker secret rm v2k-mq || true
-      - docker secret rm v2k-redpanda || true
-      - docker secret rm v2k-redpanda-console || true
-
-  config:mq:install:
-    cmds:
-      - docker secret rm v2k-mq || true
-      - envsubst < config/mq.yaml | docker secret create v2k-mq -
-
-  config:rp:install:
-      - docker secret rm v2k-redpanda || true
-      - docker secret rm v2k-redpanda-console || true
-      - envsubst < config/redpanda.yaml | docker secret create v2k-redpanda -
-      - envsubst < config/redpanda-console.yaml | docker secret create v2k-redpanda-console -
-
-  config:install:
-    cmds:
-      - task: config:mq:install
-      - task: config:rp:install
-
-  manager:nfs:install:
-    cmds:
-      - envsubst < nfs/v2k.exports | sudo tee /etc/exports.d/v2k.exports
+      - cp env/build.env.template env/build.env
+      - cp env/secret.env.template env/secret.env
     generates:
-      - /etc/exports.d/v2k.exports
-
-  manager:nfs:start:
-    deps: [nfs:install]
-    cmds:
-      - systemctl restart nfs-server.service
-
-  node:volumes:create:
-    cmds:
-      - |
-        docker volume create --driver local                             \
-          --opt type=nfs                                                \
-          --opt o=addr=$MANAGER_HOST,ro,nfsvers=4,nolock,soft,timeo=10  \
-          --opt device=:$REPO_PATH/config                               \
-        v2k-config
-      - |
-        docker volume create --driver local                             \
-          --opt type=nfs                                                \
-          --opt o=addr=$MANAGER_HOST,rw,nfsvers=4,nolock,soft,timeo=10  \
-          --opt device=:$REPO_PATH/blob                                 \
-        v2k-blob
-
-  network:create:
-    status:
-      - test -n "$(docker network ls --filter driver=overlay --filter name=v2k)"
-    cmds:
-      - docker network create --driver overlay --attachable v2k
-    internal: true
-
-  deploy:db:
-    deps: [network:create]
-    cmds:
-      - docker stack deploy -c compose/compose.db.yaml {{.CLI_ARGS}} v2k_db
-
-  deploy:mq:
-    deps: [network:create, config:mq:install]
-    cmds:
-      - docker stack deploy -c compose/compose.mq.yaml {{.CLI_ARGS}} v2k_mq
-
-  deploy:rp:
-    deps: [network:create, config:rp:install]
-    cmds:
-      - docker stack deploy -c compose/compose.rp.yaml {{.CLI_ARGS}} v2k_rp
-
-  deploy:sm:
-    deps: [network:create, sync]
-    cmds:
-      - docker stack deploy -c compose/compose.sm.yaml {{.CLI_ARGS}} v2k_sm
-
-  deploy:as:
-    deps: [network:create]
-    cmds:
-      - docker stack deploy -c compose/compose.as.yaml {{.CLI_ARGS}} v2k_as
-
-  deploy:gf:
-    deps: [network:create]
-    cmds:
-      - docker stack deploy -c compose/compose.gf.yaml {{.CLI_ARGS}} v2k_gf
+      - env/build.env
+      - env/secret.env
 
   deploy:
-    deps: [network:create, config:install]
+    deps: [config:setup]
     cmds:
-      - echo $MQ_MQTT_PORT
       - |
         docker stack config          \
           -c compose/compose.mq.yaml \
@@ -118,3 +38,49 @@ tasks:
           -c compose/compose.gf.yaml \
           -c compose/compose.as.yaml \
         | docker stack deploy -c - v2k
+
+  config:setup:
+    cmds:
+      - task: config:mq:setup
+      - task: config:rp:setup
+
+  config:mq:setup:
+    cmds:
+      - docker secret rm v2k-mq || true
+      - envsubst < config/mq.yaml | docker secret create v2k-mq -
+
+  config:rp:setup:
+      - docker secret rm v2k-redpanda || true
+      - docker secret rm v2k-redpanda-console || true
+      - envsubst < config/redpanda.yaml | docker secret create v2k-redpanda -
+      - envsubst < config/redpanda-console.yaml | docker secret create v2k-redpanda-console -
+
+  config:clean:
+    cmds:
+      - docker secret rm v2k-mq || true
+      - docker secret rm v2k-redpanda || true
+      - docker secret rm v2k-redpanda-console || true
+
+  deploy:db:
+    cmds:
+      - docker stack deploy -c compose/compose.db.yaml {{.CLI_ARGS}} v2k_db
+
+  deploy:mq:
+    cmds:
+      - docker stack deploy -c compose/compose.mq.yaml {{.CLI_ARGS}} v2k_mq
+
+  deploy:rp:
+    cmds:
+      - docker stack deploy -c compose/compose.rp.yaml {{.CLI_ARGS}} v2k_rp
+
+  deploy:sm:
+    cmds:
+      - docker stack deploy -c compose/compose.sm.yaml {{.CLI_ARGS}} v2k_sm
+
+  deploy:as:
+    cmds:
+      - docker stack deploy -c compose/compose.as.yaml {{.CLI_ARGS}} v2k_as
+
+  deploy:gf:
+    cmds:
+      - docker stack deploy -c compose/compose.gf.yaml {{.CLI_ARGS}} v2k_gf

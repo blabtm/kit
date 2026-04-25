@@ -1,0 +1,8 @@
+{
+  "label": "Основы",
+  "position": 3,
+  "link": {
+    "type": "generated-index",
+    "description": "Основные концепции модели коллайдера VEPP-2000."
+  }
+}

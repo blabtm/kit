@@ -34,7 +34,7 @@ Driver selection and preparation of all necessary artifacts (e.g., Dockerfile cr
 
 The _service manager_ is middleware that provides unified access to platform services and their configurations using the driver abstraction.
 
-The service manager provides a REST API and a command-line interface. See the [service manager documentation](./infra/sm/overview) for details.
+The service manager provides a REST API and a command-line interface. See the [service manager documentation](@site/docs/infra/sm/overview.md) for details.
 
 ### Build and Deployment
 
