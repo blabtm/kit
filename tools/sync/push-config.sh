@@ -1,6 +1,8 @@
 #!/bin/bash
 
-rm -rf ./.deploy/*
+echo "Synchronizing deployments."
+
+mkdir -p .deploy && rm -rf .deploy/*
 
 while read -r src; do
     path=$(sed 's/\./\//g' <<< "$src")
@@ -18,3 +20,4 @@ find .deploy -type f -print0 | while IFS= read -r -d '' file; do
         envsubst < "$file" > "$file.tmp" && mv "$file.tmp" "$file"
     fi
 done
+

@@ -4,12 +4,16 @@ vars:
   DOCKER_REGISTRY: ghcr.io/blabtm
   SCHEMA_DIR: "{{.ROOT_DIR}}/schema"
   CONFIG_DIR: "{{.ROOT_DIR}}/config"
+  DEPLOY_DIR: "{{.ROOT_DIR}}/.deploy"
   TOOLS_DIR: "{{.ROOT_DIR}}/tools"
   BLOB_DIR: "{{.ROOT_DIR}}/blob"
 
 dotenv:
   - platform/env/secret.env
   - platform/env/build.env
+
+env:
+  ROOT_DIR: "{{.ROOT_DIR}}"
 
 includes:
   wiki:
@@ -29,23 +33,14 @@ includes:
     dir: ./py
 
 tasks:
-  rpk:profile:create:
-    status:
-      - test -n "$(rpk profile list | grep v2k)"
+  setup:
     cmds:
-      - rpk profile create v2k
-    internal: true
+      - "{{.TOOLS_DIR}}/setup/setup-redpanda.sh"
+      - "{{.TOOLS_DIR}}/setup/setup-grafana.sh"
 
-  rpk:profile:update:
-    deps: [rpk:profile:create]
+  push:
     cmds:
-      - rpk profile set brokers=$RP_HOST:$RP_LAN_PORT
-      - rpk profile set schema_registry.addresses=$RP_HOST:$RP_SR_PORT
-
-  sync:
-    cmds:
-      - "{{.TOOLS_DIR}}/sync/sync.sh"
-
-  schema:install:
-    cmds:
-      - "{{.TOOLS_DIR}}/sync/schema-install.sh"
+      - "{{.TOOLS_DIR}}/sync/push-schema.sh"
+      - "{{.TOOLS_DIR}}/sync/push-config.sh"
+      - "{{.TOOLS_DIR}}/sync/push-dash.sh"
+      - "{{.TOOLS_DIR}}/sync/push-app.sh"

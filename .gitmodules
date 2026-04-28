@@ -31,3 +31,6 @@
 [submodule "wiki/paper"]
 	path = wiki/paper
 	url = git@github.com:blabtm/v2k.paper.git
+[submodule "native/extern/protobuf"]
+	path = native/extern/protobuf
+	url = https://github.com/protocolbuffers/protobuf.git

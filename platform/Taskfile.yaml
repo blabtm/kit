@@ -30,14 +30,11 @@ tasks:
   deploy:
     deps: [config:setup]
     cmds:
-      - |
-        docker stack config          \
-          -c compose/compose.mq.yaml \
-          -c compose/compose.rp.yaml \
-          -c compose/compose.sm.yaml \
-          -c compose/compose.gf.yaml \
-          -c compose/compose.as.yaml \
-        | docker stack deploy -c - v2k
+      - task: deploy:mq
+      - task: deploy:rp
+      - task: deploy:sm
+      - task: deploy:gf
+      - task: deploy:as
 
   config:setup:
     cmds:
@@ -50,10 +47,10 @@ tasks:
       - envsubst < config/mq.yaml | docker secret create v2k-mq -
 
   config:rp:setup:
-      - docker secret rm v2k-redpanda || true
-      - docker secret rm v2k-redpanda-console || true
-      - envsubst < config/redpanda.yaml | docker secret create v2k-redpanda -
-      - envsubst < config/redpanda-console.yaml | docker secret create v2k-redpanda-console -
+    - docker secret rm v2k-redpanda || true
+    - docker secret rm v2k-redpanda-console || true
+    - envsubst < config/redpanda.yaml | docker secret create v2k-redpanda -
+    - envsubst < config/redpanda-console.yaml | docker secret create v2k-redpanda-console -
 
   config:clean:
     cmds:
@@ -75,12 +72,14 @@ tasks:
 
   deploy:sm:
     cmds:
+      - mkdir -p ../.deploy
       - docker stack deploy -c compose/compose.sm.yaml {{.CLI_ARGS}} v2k_sm
+
+  deploy:gf:
+    cmds:
+      - mkdir -p ../.obs.prov
+      - docker stack deploy -c compose/compose.gf.yaml {{.CLI_ARGS}} v2k_gf
 
   deploy:as:
     cmds:
       - docker stack deploy -c compose/compose.as.yaml {{.CLI_ARGS}} v2k_as
-
-  deploy:gf:
-    cmds:
-      - docker stack deploy -c compose/compose.gf.yaml {{.CLI_ARGS}} v2k_gf

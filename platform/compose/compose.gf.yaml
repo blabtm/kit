@@ -7,15 +7,13 @@ volumes:
 
 services:
   grafana:
-    image: ghcr.io/blabtm/v2k.grafana:latest
+    image: grafana/grafana:latest
     ports:
       - target: 3000
         published: $GRAFANA_PORT
         mode: ingress
-    environment:
-      GF_SECURITY_ALLOW_EMBEDDING: "true"
-      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: hamedkarbasi93-kafka-datasource
     volumes:
       - grafana:/var/lib/grafana
+      - $REPO_PATH/.obs.prov:/etc/grafana/provisioning:ro
     networks:
       - v2k

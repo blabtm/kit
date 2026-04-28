@@ -1,14 +1,13 @@
-version: '3'
+version: "3"
 
 includes:
-  grafana-kafka-datasource: 
+  grafana-kafka-datasource:
     taskfile: ./grafana-kafka-datasource/Taskfile.yaml
     dir: ./grafana-kafka-datasource
     optional: true
 
 tasks:
   image:
-    deps:
-      - grafana-kafka-datasource:build
+    deps: [grafana-kafka-datasource:build]
     cmds:
       - docker build -t {{.DOCKER_REGISTRY}}/v2k.grafana:latest .

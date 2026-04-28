@@ -2,7 +2,7 @@
 **/*.txt
 
 .deploy/
-.docs/
+.obs.*
 
 blob/
 node_modules/

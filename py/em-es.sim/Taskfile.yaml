@@ -11,8 +11,8 @@ tasks:
   run:
     deps: [setup]
     env:
-      RP_URI: "${LOCALHOST}:9092"
-      SR_URI: "http://${LOCALHOST}:9080"
+      RP_URI: "{{.LOCALHOST}}:9092"
+      SR_URI: "http://{{.LOCALHOST}}:9080"
       CONFIG_DIR: "{{.CONFIG_DIR}}"
     cmds:
       - conda run -n em-es.sim python src/main.py

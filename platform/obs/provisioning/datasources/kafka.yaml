@@ -1,0 +1,35 @@
+apiVersion: 1
+
+datasources:
+  - name: kafka
+    id: 1
+    uid: bfkfa2ke6gv7kc
+    orgId: 1
+    type: hamedkarbasi93-kafka-datasource
+    typeName: Kafka
+    typeLogoUrl: public/plugins/hamedkarbasi93-kafka-datasource/img/kafka_logo.svg
+    access: proxy
+    url: ""
+    user": ""
+    database: ""
+    basicAuth: false
+    isDefault: true
+    readOnly: true
+    jsonData:
+      bootstrapServers: $RP_HOST:$RP_LAN_PORT
+      clientId: ""
+      flattenFieldCap: 1000
+      flattenMaxDepth: 5
+      healthcheckTimeout: 2000
+      logLevel: ""
+      pdcInjected: false
+      saslMechanisms: ""
+      saslUsername: ""
+      schemaRegistryUrl: http://$RP_HOST:$RP_SR_PORT
+      securityProtocol: PLAINTEXT
+      serverName: ""
+      timeout: 0
+      tlsAuth: false
+      tlsAuthWithCACert: false
+      tlsSkipVerify: false
+
