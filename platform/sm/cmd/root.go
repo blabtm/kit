@@ -57,7 +57,7 @@ var Up = &cobra.Command{
 			return err
 		}
 
-		fmt.Println("Ok.")
+		fmt.Printf("%s: UP\n", args[0])
 
 		return nil
 	},
@@ -77,7 +77,7 @@ var Down = &cobra.Command{
 			return err
 		}
 
-		fmt.Println("Ok.")
+		fmt.Printf("%s: DOWN\n", args[0])
 
 		return nil
 	},
@@ -97,7 +97,8 @@ var Ps = &cobra.Command{
 			return err
 		}
 
-		fmt.Printf("State: %s\n", status.State)
+		fmt.Printf("%s:\n", args[0])
+		fmt.Printf("\tState: %s\n", status.State)
 
 		return nil
 	},

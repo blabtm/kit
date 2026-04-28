@@ -45,9 +45,9 @@ type Option struct {
 type State string
 
 const (
-	Up      State = "Up"      // Up indicates the service is operational and running.
-	Down    State = "Down"    // Down indicates the service is transitioning, not operational or stopped.
-	Partial State = "Partial" // Partial indicates the service is not fully functional.
+	Up      State = "UP"      // Up indicates the service is operational and running.
+	Down    State = "DOWN"    // Down indicates the service is transitioning, not operational or stopped.
+	Partial State = "PARTIAL" // Partial indicates the service is not fully functional.
 )
 
 // Status provides a detailed report of a service's current operational state.

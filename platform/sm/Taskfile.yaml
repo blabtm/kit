@@ -59,3 +59,12 @@ tasks:
   publish:
     cmds:
       - docker push {{.DOCKER_REGISTRY}}/v2k.sm:latest
+
+  run:
+    env:
+      ADDR: ":8080"
+      CONFIG_PATH: "{{.CONFIG_DIR}}"
+      DEPLOY_PATH: "{{.DEPLOY_DIR}}"
+    cmds:
+      - go run ./rest
+
