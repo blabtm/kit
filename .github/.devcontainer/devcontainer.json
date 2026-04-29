@@ -1,0 +1,30 @@
+{
+    "name": "v2k-dev",
+    "build": {
+      "dockerfile": "Dockerfile",
+      "context": "../.."
+    },
+
+    "features": {
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+        "ghcr.io/devcontainers/features/go:1": {
+            "version": "1.25.5"
+        },
+        "ghcr.io/devcontainers/features/java:1": {
+            "version": "21",
+            "installGradle": true,
+            "gradleVersion": "8.14"
+        },
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "22.20.0"
+        },
+        "ghcr.io/devcontainers-extra/features/go-task:1": {},
+        "ghcr.io/devcontainers-extra/features/apt-get-packages:1": {
+            "packages": "gdb,cmake,yq"
+        },
+        "ghcr.io/guiyomh/features/mage:0": {},
+        "ghcr.io/rocker-org/devcontainer-features/miniforge:2": {},
+        "ghcr.io/blabtm/features/rpk:0.0.0": {},
+        "ghcr.io/blabtm/features/gcx:0.0.0": {}
+    }
+}

@@ -6,6 +6,7 @@ on:
       - trunk
     paths:
       - .devcontainer/**
+      - .github/.devcontainer/**
 
 jobs:
   pre-build:
@@ -28,5 +29,5 @@ jobs:
         uses: devcontainers/ci@v0.3
         with:
           imageName: ghcr.io/blabtm/v2k.dev
-          cacheFrom: ghcr.io/blabtm/v2k.dev
+          subFolder: .github
           push: always

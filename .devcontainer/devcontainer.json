@@ -1,64 +1,22 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/debian
 {
-    "name": "VEPP-2000 Collider Platform",
+    "name": "v2k",
     "image": "ghcr.io/blabtm/v2k.dev:latest",
-    "build": {
-        "dockerfile": "Dockerfile"
-    },
 
     "runArgs": ["--network=host"],
 
-    "features": {
-        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
-        "ghcr.io/devcontainers/features/go:1": {
-            "version": "1.25.5"
-        },
-        "ghcr.io/devcontainers/features/java:1": {
-            "version": "21",
-            "installGradle": true,
-            "gradleVersion": "8.14"
-        },
-        "ghcr.io/devcontainers/features/node:1": {
-            "version": "22.20.0"
-        },
-        "ghcr.io/devcontainers/features/conda:2.0.1": {},
-        "ghcr.io/devcontainers-extra/features/go-task:1": {},
-        "ghcr.io/blabtm/features/rpk:0.0.0": {},
-        "ghcr.io/devcontainers-extra/features/apt-get-packages:1": {
-            "packages": "gdb,cmake"
-        },
-        "ghcr.io/guiyomh/features/mage:0": {}
-    },
-
-    // Initialize container
-    "postCreateCommand": ". .devcontainer/postCreate.sh",
-
-    // Caches
     "mounts": [
         "source=/etc/localtime,target=/etc/localtime,readonly,type=bind",
         "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,readonly,type=bind",
-        "source=gradle-cache,target=/home/vscode/.gradle,type=volume"
+        "source=gradle-cache,target=/home/vscode/.gradle,type=volume",
+        "source=vcpkg-cache,target=/home/vscode/.vcpkg-cache,type=volume"
     ],
 
-    // Use 'forwardPorts' to make a list of ports inside the container available locally.
-    "forwardPorts": [],
-
-    // Configure tool-specific properties.
     "customizations": {
         "vscode": {
             "extensions": [
                 "ms-azuretools.vscode-containers",
-                "golang.go",
-                "ms-vscode.cpptools",
-                "-vscjava.vscode-java-pack",
-                "esbenp.prettier-vscode",
-                "drblury.protobuf-vsc",
                 "task.vscode-task",
-                "platformio.platformio-ide",
-                "ms-toolsai.jupyter",
-                "github.vscode-github-actions",
-                "postman.postman-for-vscode"
+                "-vscjava.vscode-java-pack"
             ]
         }
     }

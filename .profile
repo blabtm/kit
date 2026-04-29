@@ -1,0 +1,5 @@
+export VCPKG_ROOT="/opt/vcpkg"
+export VCPKG_BINARY_SOURCES="clear;files,/home/vscode/.vcpkg-cache,readwrite;files,/opt/vcpkg_cache,read"
+export VCPKG_INSTALLED_ROOT="/opt/vcpkg_installed"
+export CMAKE_TOOLCHAIN_FILE="/opt/vcpkg/scripts/buildsystems/vcpkg.cmake"
+export PATH="$VCPKG_ROOT:$PATH"

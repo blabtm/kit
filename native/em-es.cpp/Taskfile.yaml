@@ -8,3 +8,17 @@ tasks:
       - protoc -I{{.SCHEMA_DIR}} --cpp_out=gen v2k/beam/Current.proto
       - protoc -I{{.SCHEMA_DIR}} --cpp_out=gen v2k/beam/Emittance.proto
       - protoc -I{{.SCHEMA_DIR}} --cpp_out=gen v2k/beam/EnergySpread.proto
+
+  build:
+    dir: ..
+    cmds:
+      - cmake --build build --target svc-em-es
+
+  run:
+    dir: ..
+    env:
+      RP_URI: "{{.LOCALHOST}}:9092"
+      SR_URI: "http://{{.LOCALHOST}}:9080"
+      CONFIG_DIR: "{{.CONFIG_DIR}}"
+    cmds:
+      - ./build/em-es.cpp/svc-em-es

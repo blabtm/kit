@@ -5,7 +5,7 @@ tasks:
     status:
       - test -n "$(conda env list | grep 'em-es.sim')"
     cmds:
-      - conda env create -f environment.yaml
+      - mamba env create -f environment.yaml
     internal: true
 
   run:
@@ -15,4 +15,4 @@ tasks:
       SR_URI: "http://{{.LOCALHOST}}:9080"
       CONFIG_DIR: "{{.CONFIG_DIR}}"
     cmds:
-      - conda run -n em-es.sim python src/main.py
+      - mamba run -n em-es.sim python src/main.py

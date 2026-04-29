@@ -13,5 +13,16 @@
     "openssl",
     "cpr",
     "avro-cpp"
-  ]
+  ],
+  "overrides": [
+    {
+      "name": "protobuf",
+      "version": "5.29.5"
+    },
+    {
+      "name": "abseil",
+      "version": "20240116.2"
+    }
+  ],
+  "builtin-baseline": "256acc64012b23a13041d8705805e1f23b43a024"
 }
