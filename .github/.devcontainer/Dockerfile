@@ -20,10 +20,11 @@ COPY native/vcpkg-configuration.json ./
 
 RUN ${VCPKG_ROOT}/vcpkg install               \
     --x-manifest-root=/tmp/vcpkg_manifest     \
-    --x-install-root=${VCPKG_INSTALLED_ROOT}
+    --x-install-root=${VCPKG_INSTALLED_ROOT}  \
+    --clean-after-build
 
-RUN ln -sf "${VCPKG_ROOT}/packages/protobuf_x64-linux/tools/protobuf/protoc" \
+RUN ln -sf "${VCPKG_INSTALLED_ROOT}/x64-linux/tools/protobuf/protoc" \
            "/usr/local/bin/protoc"
 
 RUN chown -R vscode:vscode /opt/vcpkg_installed
-
+RUN chown -R vscode:vscode /home/vscode/.bash_profile
