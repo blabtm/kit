@@ -29,4 +29,4 @@ jobs:
           files: |
             sm_*.*.*_amd64
             sm_*.*.*_arm64
-            util/install.sh
+            install.sh

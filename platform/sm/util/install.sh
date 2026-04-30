@@ -7,8 +7,7 @@ case $(uname -m) in
   *) target="amd64" ;;
 esac
 
-vers="0.0.0"
-uri="https://github.com/blabtm/v2k/releases/download/platform/sm/v${vers}/sm_${vers}_${target}"
+uri="https://github.com/blabtm/v2k/releases/download/platform/sm/v${VERSION}/sm_${VERSION}_${target}"
 home="$HOME/.sm"
 bin="$home/bin"
 exe="$bin/sm"

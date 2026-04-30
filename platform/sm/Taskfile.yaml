@@ -1,7 +1,10 @@
 version: "3"
 
 vars:
-  VERSION: 0.0.0
+  VERSION: 0.0.1
+
+env:
+  VERSION: "{{.VERSION}}"
 
 tasks:
   build:amd64:
@@ -51,6 +54,7 @@ tasks:
     cmds:
       - task: build:amd64
       - task: build:arm64
+      - envsubst '${VERSION}' < util/install.sh > install.sh
 
   image:
     cmds:
