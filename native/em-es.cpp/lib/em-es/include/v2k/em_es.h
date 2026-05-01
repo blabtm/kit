@@ -29,6 +29,7 @@ struct CamSetup {
 };
 
 struct Config {
+  std::size_t window;
   std::unordered_map<std::string, CamSetup> cams;
 
   /**
@@ -37,6 +38,8 @@ struct Config {
   Config(std::string const &path) {
     auto const conf = YAML::LoadFile(path);
     auto const ccds = conf["service"]["cams"];
+
+    window = conf["service"]["window"].as<std::size_t>();
 
     for (YAML::const_iterator it = ccds.begin(); it != ccds.end(); ++it) {
       cams.insert({it->first.as<std::string>(), CamSetup(it->second)});
