@@ -81,11 +81,10 @@ const config: Config = {
       items: [
         {
           type: 'docSidebar',
-          sidebarId: 'tutorialSidebar',
+          sidebarId: 'autoSidebar',
           position: 'left',
-          label: 'Docs',
+          label: 'Документация',
         },
-        {to: '/blog', label: 'Blog', position: 'left'},
         {
           type: 'localeDropdown',
           position: 'left',
@@ -101,29 +100,20 @@ const config: Config = {
       style: 'dark',
       links: [
         {
-          title: 'Docs',
+          title: 'Документация',
           items: [
             {
-              label: 'Overview',
+              label: 'Обзор',
               to: '/docs/overview',
             },
-          ],
-        },
-        {
-          title: 'More',
-          items: [
             {
-              label: 'Blog',
-              to: '/blog',
-            },
-            {
-              label: 'GitHub',
-              href: 'https://github.com/blabtm/v2k',
+              label: 'Начало',
+              to: '/docs/quickstart',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Budker Institute of Nuclear Physics`,
+      copyright: `Copyright © ${new Date().getFullYear()}`,
     },
     prism: {
       theme: prismThemes.github,
