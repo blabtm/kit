@@ -25,6 +25,7 @@
         "ghcr.io/guiyomh/features/mage:0": {},
         "ghcr.io/rocker-org/devcontainer-features/miniforge:2": {},
         "ghcr.io/blabtm/features/rpk:0.0.0": {},
-        "ghcr.io/blabtm/features/gcx:0.0.0": {}
+        "ghcr.io/blabtm/features/gcx:0.0.0": {},
+        "ghcr.io/blabtm/features/cue:0.0.0": {}
     }
 }

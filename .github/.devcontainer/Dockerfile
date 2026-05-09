@@ -28,3 +28,6 @@ RUN ln -sf "${VCPKG_INSTALLED_ROOT}/x64-linux/tools/protobuf/protoc" \
 
 RUN chown -R vscode:vscode /opt/vcpkg_installed
 RUN chown -R vscode:vscode /home/vscode/.bash_profile
+
+USER vscode
+WORKDIR /workspaces/v2k
