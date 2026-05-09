@@ -9,8 +9,16 @@ tasks:
       - protoc -I{{.SCHEMA_DIR}} --java_out=src/main/java --plugin=protoc-gen-iface={{.TOOLS_DIR}}/protoc-gen-iface/plugin.py --iface_out=src/main/java v2k/beam/Emittance.proto
       - protoc -I{{.SCHEMA_DIR}} --java_out=src/main/java --plugin=protoc-gen-iface={{.TOOLS_DIR}}/protoc-gen-iface/plugin.py --iface_out=src/main/java v2k/beam/EnergySpread.proto
 
+  generate:model:
+    cmds:
+      - cue export --out jsonschema ./model/schema.cue > schema.json
+      - sed -i -e 's/%23/#/g' schema.json
+      - sed -i '/$schema/d' schema.json
+      - mv schema.json {{.ROOT_DIR}}/platform/sm/ui/src/model
+
   image:
     deps:
       - generate
     cmds:
       - docker build -t {{.DOCKER_REGISTRY}}/v2k.em-es:latest -f Dockerfile ..
+
