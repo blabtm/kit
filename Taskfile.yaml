@@ -33,14 +33,23 @@ includes:
     dir: ./py
 
 tasks:
-  setup:
-    cmds:
-      - "{{.TOOLS_DIR}}/setup/setup-redpanda.sh"
-      - "{{.TOOLS_DIR}}/setup/setup-grafana.sh"
-
   push:
     cmds:
+      - task: push:schema
+      - task: push:config
+      - task: push:dash
+      - task: push:app
+
+  push:schema:
+    cmds:
       - "{{.TOOLS_DIR}}/sync/push-schema.sh"
+  push:config:
+    cmds:
       - "{{.TOOLS_DIR}}/sync/push-config.sh"
+  push:dash:
+    cmds:
       - "{{.TOOLS_DIR}}/sync/push-dash.sh"
+  push:app:
+    cmds:
       - "{{.TOOLS_DIR}}/sync/push-app.sh"
+

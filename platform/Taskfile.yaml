@@ -64,7 +64,15 @@ tasks:
 
   setup:
     cmds:
+      - task: setup:rp
+      - task: setup:gf
+
+  setup:rp:
+    cmds:
       - "{{.TOOLS_DIR}}/setup/setup-redpanda.sh"
+
+  setup:gf:
+    cmds:
       - "{{.TOOLS_DIR}}/setup/setup-grafana.sh"
 
   config:setup:
