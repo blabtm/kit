@@ -6,6 +6,11 @@ vars:
 env:
   VERSION: "{{.VERSION}}"
 
+includes:
+  ui:
+    taskfile: ./ui/Taskfile.yaml
+    dir: ./ui
+
 tasks:
   build:amd64:
     env:
@@ -69,6 +74,7 @@ tasks:
       ADDR: ":8080"
       CONFIG_PATH: "{{.CONFIG_DIR}}"
       DEPLOY_PATH: "{{.DEPLOY_DIR}}"
+      CORS_ALLOWED_ORIGINS: "http://localhost:3000"
     cmds:
       - go run ./rest
 

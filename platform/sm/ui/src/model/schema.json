@@ -1,0 +1,134 @@
+{
+    "$defs": {
+        "#AxesSetup": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "x": {
+                    "$ref": "#/$defs/#AxisSetup"
+                },
+                "z": {
+                    "$ref": "#/$defs/#AxisSetup"
+                }
+            }
+        },
+        "#AxisSetup": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "weight": {
+                    "type": "number"
+                }
+            }
+        },
+        "#CamSetup": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "axes": {
+                    "$ref": "#/$defs/#AxesSetup"
+                }
+            }
+        },
+        "#Config": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "cams": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "1m1l": {
+                            "$ref": "#/$defs/#CamSetup"
+                        },
+                        "1m1r": {
+                            "$ref": "#/$defs/#CamSetup"
+                        },
+                        "1m2l": {
+                            "$ref": "#/$defs/#CamSetup"
+                        },
+                        "1m2r": {
+                            "$ref": "#/$defs/#CamSetup"
+                        },
+                        "2m1l": {
+                            "$ref": "#/$defs/#CamSetup"
+                        },
+                        "2m1r": {
+                            "$ref": "#/$defs/#CamSetup"
+                        },
+                        "2m2l": {
+                            "$ref": "#/$defs/#CamSetup"
+                        },
+                        "2m2r": {
+                            "$ref": "#/$defs/#CamSetup"
+                        },
+                        "3m1l": {
+                            "$ref": "#/$defs/#CamSetup"
+                        },
+                        "3m1r": {
+                            "$ref": "#/$defs/#CamSetup"
+                        },
+                        "3m2l": {
+                            "$ref": "#/$defs/#CamSetup"
+                        },
+                        "3m2r": {
+                            "$ref": "#/$defs/#CamSetup"
+                        },
+                        "4m1l": {
+                            "$ref": "#/$defs/#CamSetup"
+                        },
+                        "4m1r": {
+                            "$ref": "#/$defs/#CamSetup"
+                        },
+                        "4m2l": {
+                            "$ref": "#/$defs/#CamSetup"
+                        },
+                        "4m2r": {
+                            "$ref": "#/$defs/#CamSetup"
+                        }
+                    }
+                },
+                "solver": {
+                    "$ref": "#/$defs/#SolverConfig"
+                },
+                "window": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "solver"
+            ]
+        },
+        "#SolverConfig": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "absoluteCost": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                },
+                "maxEvaluations": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                },
+                "maxIterations": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                },
+                "relativeCost": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                }
+            },
+            "required": [
+                "absoluteCost",
+                "maxEvaluations",
+                "maxIterations",
+                "relativeCost"
+            ]
+        }
+    },
+    "type": "object",
+    "additionalProperties": false,
+    "$ref": "#/$defs/#Config"
+}

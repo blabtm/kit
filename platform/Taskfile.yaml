@@ -36,28 +36,6 @@ tasks:
       - task: deploy:gf
       - task: deploy:as
 
-  config:setup:
-    cmds:
-      - task: config:mq:setup
-      - task: config:rp:setup
-
-  config:mq:setup:
-    cmds:
-      - docker secret rm v2k-mq || true
-      - envsubst < config/mq.yaml | docker secret create v2k-mq -
-
-  config:rp:setup:
-    - docker secret rm v2k-redpanda || true
-    - docker secret rm v2k-redpanda-console || true
-    - envsubst < config/redpanda.yaml | docker secret create v2k-redpanda -
-    - envsubst < config/redpanda-console.yaml | docker secret create v2k-redpanda-console -
-
-  config:clean:
-    cmds:
-      - docker secret rm v2k-mq || true
-      - docker secret rm v2k-redpanda || true
-      - docker secret rm v2k-redpanda-console || true
-
   deploy:db:
     cmds:
       - docker stack deploy -c compose/compose.db.yaml {{.CLI_ARGS}} v2k_db
@@ -83,3 +61,35 @@ tasks:
   deploy:as:
     cmds:
       - docker stack deploy -c compose/compose.as.yaml {{.CLI_ARGS}} v2k_as
+
+  setup:
+    cmds:
+      - "{{.TOOLS_DIR}}/setup/setup-redpanda.sh"
+      - "{{.TOOLS_DIR}}/setup/setup-grafana.sh"
+
+  config:setup:
+    cmds:
+      - task: config:mq:setup
+      - task: config:rp:setup
+    internal: true
+
+  config:mq:setup:
+    cmds:
+      - docker secret rm v2k-mq || true
+      - envsubst < config/mq.yaml | docker secret create v2k-mq -
+    internal: true
+
+  config:rp:setup:
+    cmds:
+      - docker secret rm v2k-redpanda || true
+      - docker secret rm v2k-redpanda-console || true
+      - envsubst < config/redpanda.yaml | docker secret create v2k-redpanda -
+      - envsubst < config/redpanda-console.yaml | docker secret create v2k-redpanda-console -
+    internal: true
+
+  config:clean:
+    cmds:
+      - docker secret rm v2k-mq || true
+      - docker secret rm v2k-redpanda || true
+      - docker secret rm v2k-redpanda-console || true
+    internal: true

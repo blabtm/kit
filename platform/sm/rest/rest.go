@@ -4,14 +4,17 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	v1 "github.com/blabtm/v2k/platform/sm/rest/v1"
+	"github.com/rs/cors"
 
 	_ "github.com/blabtm/v2k/platform/sm/docker"
 	_ "github.com/blabtm/v2k/platform/sm/swarm"
 )
 
 var addr string
+var allowedOrigins []string
 
 func init() {
 	addr = os.Getenv("ADDR")
@@ -19,6 +22,8 @@ func init() {
 	if addr == "" {
 		addr = ":80"
 	}
+
+	allowedOrigins = strings.Split(os.Getenv("CORS_ALLOWED_ORIGINS"), ",")
 }
 
 func main() {
@@ -31,7 +36,15 @@ func main() {
 	mux.HandleFunc("GET /v1/svc/{name}/config", v1.GetConfig)
 	mux.HandleFunc("PUT /v1/svc/{name}/config", v1.PutConfig)
 
-	if err := http.ListenAndServe(addr, mux); err != nil {
+	c := cors.New(cors.Options{
+		AllowedOrigins: allowedOrigins,
+		AllowedMethods: []string{"GET", "PUT", "OPTIONS"},
+		AllowedHeaders: []string{"*"},
+	})
+
+	handler := c.Handler(mux)
+
+	if err := http.ListenAndServe(addr, handler); err != nil {
 		log.Panic(err)
 	}
 }
