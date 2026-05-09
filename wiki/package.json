@@ -32,6 +32,8 @@
     "@docusaurus/tsconfig": "3.10.0",
     "@docusaurus/types": "3.10.0",
     "@types/react": "^19.0.0",
+    "prettier": "3.8.3",
+    "prettier-plugin-latex": "^2.0.1",
     "typescript": "~6.0.2"
   },
   "browserslist": {
