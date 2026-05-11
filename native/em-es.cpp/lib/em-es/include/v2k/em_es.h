@@ -37,9 +37,9 @@ struct Config {
    */
   Config(std::string const &path) {
     auto const conf = YAML::LoadFile(path);
-    auto const ccds = conf["service"]["cams"];
+    auto const ccds = conf["cams"];
 
-    window = conf["service"]["window"].as<std::size_t>();
+    window = conf["window"].as<std::size_t>();
 
     for (YAML::const_iterator it = ccds.begin(); it != ccds.end(); ++it) {
       cams.insert({it->first.as<std::string>(), CamSetup(it->second)});

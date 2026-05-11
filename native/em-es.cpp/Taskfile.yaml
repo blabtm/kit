@@ -14,6 +14,12 @@ tasks:
     cmds:
       - cmake --build build --target svc-em-es
 
+  image:
+    deps:
+      - generate
+    cmds:
+      - docker build -t {{.DOCKER_REGISTRY}}/v2k.em-es:latest -f Dockerfile ..
+
   run:
     dir: ..
     env:

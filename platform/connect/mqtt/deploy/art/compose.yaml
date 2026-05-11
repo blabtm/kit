@@ -23,7 +23,7 @@ services:
                 let topic = meta("mqtt_topic").replace_all("/", ".").lowercase()
 
                 meta schema = match {
-                  $$topic.re_match("vepp.current") => "v2k.beam.Current"
+                  $$topic.re_match("vepp.currents.fz") => "v2k.beam.Current"
                   $$topic.re_match("vepp.ccd.*.sigma_[xz]") => "v2k.beam.AxisSize"
                   _ => if this.value.type() == "number" {
                     "v2k.GenericNumber"

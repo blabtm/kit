@@ -12,6 +12,16 @@ includes:
     dir: ./ui
 
 tasks:
+  install:
+    deps: [build:amd64]
+    cmds:
+      - sudo cp sm_{{.VERSION}}_amd64 /usr/local/bin/sm
+      - sudo mkdir -p /etc/sm
+      - sudo cp config.yaml /etc/sm/config.yaml
+    generates:
+      - /usr/local/bin/sm
+      - /etc/sm/config.yaml
+
   build:amd64:
     env:
       GOOS: linux

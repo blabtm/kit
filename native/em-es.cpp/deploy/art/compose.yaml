@@ -1,0 +1,21 @@
+networks:
+  v2k:
+    external: true
+
+volumes:
+  v2k-config:
+    external: true
+  v2k-blob:
+    external: true
+
+services:
+  em-es:
+    image: ghcr.io/blabtm/v2k.em-es:latest
+    volumes:
+      - v2k-config:/etc/v2k
+    environment:
+      CONFIG_DIR: /etc/v2k
+      RP_URI: $RP_HOST:$RP_LAN_PORT
+      SR_URI: http://$RP_HOST:$RP_SR_PORT
+    networks:
+      - v2k

@@ -26,6 +26,7 @@ RUN ${VCPKG_ROOT}/vcpkg install               \
 RUN ln -sf "${VCPKG_INSTALLED_ROOT}/x64-linux/tools/protobuf/protoc" \
            "/usr/local/bin/protoc"
 
+RUN chown -R vscode:vscode /opt/vcpkg
 RUN chown -R vscode:vscode /opt/vcpkg_installed
 RUN chown -R vscode:vscode /home/vscode/.bash_profile
 

@@ -20,7 +20,7 @@ mkdir -p .obs.dash/folders.v1.folder.grafana.app
 mkdir -p .obs.dash/dashboards.v2.dashboard.grafana.app
 mkdir -p .obs.prov && rm -rf .obs.prov/*
 
-find . | grep -E "/dash/.*\.yaml" | while read file; do
+find . | grep -E "/obs/.*\.yaml" | while read file; do
   kind=$(cat "$file" | yq --raw-output ".kind")
 
   if [[ "$kind" == "Folder" ]]; then

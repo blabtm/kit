@@ -1,3 +1,4 @@
+#include "schemaregistry/rest/model/Schema.h"
 #include <any>
 #include <atomic>
 #include <cassert>
@@ -227,14 +228,8 @@ int main(int argc, char **argv) {
       std::make_shared<ClientConfiguration>(std::vector<std::string>{sr_uri});
   auto const sr_client = SchemaRegistryClient::newClient(sr_config);
 
-  std::unordered_map<std::string, std::string> rule_config;
-  auto deser_config =
-      DeserializerConfig(std::nullopt, false, rule_config);
-  auto ser_config =
-      SerializerConfig(true, std::nullopt, true, false, rule_config);
-
-  deser_config.subject_name_strategy_type = SubjectNameStrategyType::Record;
-  ser_config.subject_name_strategy_type = SubjectNameStrategyType::Record;
+  std::unordered_map<std::string, std::string> rule_config{};
+  auto deser_config = DeserializerConfig(std::nullopt, false, rule_config);
 
   auto const cur_deser =
       std::make_unique<ProtobufDeserializer<v2k::beam::Current>>(
@@ -242,12 +237,6 @@ int main(int argc, char **argv) {
   auto const axis_deser =
       std::make_unique<ProtobufDeserializer<v2k::beam::AxisSize>>(
           sr_client, nullptr, deser_config);
-  auto const emit_ser =
-      std::make_unique<ProtobufSerializer<v2k::beam::Emittance>>(
-          sr_client, std::nullopt, nullptr, ser_config);
-  auto const espread_ser =
-      std::make_unique<ProtobufSerializer<v2k::beam::EnergySpread>>(
-          sr_client, std::nullopt, nullptr, ser_config);
 
   auto cur_stream = v2k::Stream::make(nullptr);
   auto ccd_stream = std::map<std::string, v2k::Stream::Ptr>();
@@ -287,7 +276,7 @@ int main(int argc, char **argv) {
     }
   }
 
-  topics.insert("vepp.current");
+  topics.insert("vepp.currents.fz");
   group.Add(cur_stream);
   consumer.subscribe(topics);
 
@@ -307,7 +296,7 @@ int main(int argc, char **argv) {
       char const *const payload = &((char const *)record.value().data())[6];
       std::size_t const size = record.value().size() - 6;
 
-      if ("vepp.current" == record.topic()) {
+      if ("vepp.currents.fz" == record.topic()) {
         SerializationContext ser_ctx;
         ser_ctx.topic = record.topic();
         ser_ctx.serde_type = SerdeType::Value;
@@ -376,41 +365,39 @@ int main(int argc, char **argv) {
           spdlog::error("estimation: failed");
         }
 
-        auto deliveryCb = [](const RecordMetadata& metadata, const kafka::Error& error) {
+        auto deliveryCb = [](const RecordMetadata &metadata,
+                             const kafka::Error &error) {
           if (!error) {
-              std::cout << "Message delivered: " << metadata.toString() << std::endl;
+            std::cout << "Message delivered: " << metadata.toString()
+                      << std::endl;
           } else {
-              std::cerr << "Message failed to be delivered: " << error.message() << std::endl;
+            std::cerr << "Message failed to be delivered: " << error.message()
+                      << std::endl;
           }
         };
-
-        SerializationContext ser_ctx;
-        ser_ctx.topic = "vepp.emmittance";
-        ser_ctx.serde_type = SerdeType::Value;
-        ser_ctx.serde_format = SerdeFormat::Protobuf;
-        ser_ctx.headers = std::nullopt;
 
         emittance.set_time(window.end);
         emittance.set_emittance(estimation[0]);
         emittance.set_current(cur_opt.value());
 
-        auto const em_data = emit_ser->serialize(ser_ctx, emittance);
+        auto const em_data = new char[emittance.ByteSizeLong()];
+        emittance.SerializeToArray(em_data, emittance.ByteSizeLong());
 
         producer.send(kafka::clients::producer::ProducerRecord(
-                          ser_ctx.topic, kafka::NullKey,
-                          kafka::Value(em_data.data(), em_data.size())),
+                          "vepp.emittance", kafka::NullKey,
+                          kafka::Value(em_data, emittance.ByteSizeLong())),
                       deliveryCb);
 
-        ser_ctx.topic = "vepp.energy_spread";
         energy_spread.set_time(window.end);
         energy_spread.set_energy_spread(estimation[1]);
         energy_spread.set_current(cur_opt.value());
 
-        auto const es_data = espread_ser->serialize(ser_ctx, energy_spread);
+        auto const es_data = new char[energy_spread.ByteSizeLong()];
+        emittance.SerializeToArray(es_data, energy_spread.ByteSizeLong());
 
         producer.send(kafka::clients::producer::ProducerRecord(
-                          ser_ctx.topic, kafka::NullKey,
-                          kafka::Value(em_data.data(), em_data.size())),
+                          "vepp.energy_spread", kafka::NullKey,
+                          kafka::Value(em_data, energy_spread.ByteSizeLong())),
                       deliveryCb);
       }
     }

@@ -8,24 +8,68 @@ import {
   materialCells,
 } from "@jsonforms/material-renderers";
 
-function App() {
-  const [data, setData] = useState({})
+import Button from "@mui/material/Button"
 
-  console.log(`service manager is at ${process.env.REACT_APP_SM_URL}`)
+function App() {
+  const smBaseUrl = `http://${process.env.REACT_APP_SM_URL}/v1`
+  const [data, setData] = useState({})
 
   return (
     <div>
-      <button>Up</button>
-      <button>Down</button>
-      <button onClick={async () => {
-        fetch(`http://${process.env.REACT_APP_SM_URL}/v1/svc/em-es/config`)
-          .then(response => response.json())
-          .then(data => setData(data))
-          .catch(err => {
-            console.log(err)
+      <Button
+        variant="contained"
+        onClick={async () => {
+          fetch(`${smBaseUrl}/svc/em-es/up`, {
+            method: "PUT"
           })
-      }}>Pull</button>
-      <button>Push</button>
+            .then(response => {
+              alert(response.text())
+            })
+            .catch(error => {
+              console.log(error)
+            })
+        }}>Up</Button>
+
+      <Button
+        variant="contained"
+        onClick={async () => {
+          fetch(`${smBaseUrl}/svc/em-es/down`)
+            .then(response => {
+              alert(response.text())
+            })
+            .catch(error => {
+              console.log(error)
+            })
+        }}>Down</Button>
+
+      <Button
+        variant="contained"
+        onClick={async () => {
+          fetch(`${smBaseUrl}/svc/em-es/config`)
+            .then(response => response.json())
+            .then(data => setData(data))
+            .catch(error => {
+              console.log(error)
+            })
+        }}>Pull</Button>
+
+      <Button
+        variant="contained"
+        onClick={async () => {
+          fetch(`${smBaseUrl}/svc/em-es/config`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+          })
+            .then(response => {
+              alert(response.text())
+            })
+            .catch(error => {
+              console.log(error)
+            })
+        }}>Push</Button>
 
       <JsonForms
         schema={schema}
