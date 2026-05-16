@@ -47,6 +47,9 @@ tasks:
   push:config:
     cmds:
       - "{{.TOOLS_DIR}}/sync/push-config.sh"
+  push:art:
+    cmds:
+      - "{{.TOOLS_DIR}}/sync/push-art.sh"
   push:obs:
     cmds:
       - "{{.TOOLS_DIR}}/sync/push-obs.sh"

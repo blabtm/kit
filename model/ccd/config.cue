@@ -1,8 +1,8 @@
 package ccd
 
 #AxisConfig: {
-	beta!:       >=0.0 | *0.0
-	dispersion!: >=0.0 | *0.0
+	beta:       >=0.0 | *0.0
+	dispersion: >=0.0 | *0.0
 }
 
 #AxesConfig: {

@@ -25,22 +25,22 @@ tasks:
       - test -n "$(docker volume ls -q -f name=v2k-schema)"
     cmds:
       - |
-        docker volume create --driver local                             \
-          --opt type=none                                               \
-          --opt o=bind,ro                                               \
-          --opt device=$REPO_PATH/config                                \
+        docker volume create --driver local \
+          --opt type=none                   \
+          --opt o=bind,ro                   \
+          --opt device=$REPO_PATH/.config   \
         v2k-config
       - |
-        docker volume create --driver local                             \
-          --opt type=none                                               \
-          --opt o=bind,rw                                               \
-          --opt device=$REPO_PATH/blob                                  \
+        docker volume create --driver local \
+          --opt type=none                   \
+          --opt o=bind,rw                   \
+          --opt device=$REPO_PATH/blob      \
         v2k-blob
       - |
-        docker volume create --driver local                             \
-          --opt type=none                                               \
-          --opt o=bind,rw                                               \
-          --opt device=$REPO_PATH/schema                                \
+        docker volume create --driver local \
+          --opt type=none                   \
+          --opt o=bind,rw                   \
+          --opt device=$REPO_PATH/schema    \
         v2k-schema
     internal: true
 

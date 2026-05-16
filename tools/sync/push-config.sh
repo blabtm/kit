@@ -1,23 +1,13 @@
 #!/bin/bash
 
-echo "Synchronizing deployments."
+echo "Synchronizing configurations."
 
-mkdir -p .deploy && rm -rf .deploy/*
+mkdir -p .config && rm -rf .config/*
 
-while read -r src; do
-    path=$(sed 's/\./\//g' <<< "$src")
-    path=$(sed -E 's/(native|py|golang|jvm|platform)\///g' <<< "$path")
-    path="./.deploy/$path"
+find config -name config.cue | while read file; do
+  src="$(sed 's/\/config\.cue//g' <<< "$file")"
+  dst="$(sed 's/config\///g' <<< "$src")"
 
-    echo "Sync: $src > $path"
-    mkdir -p $path
-    cp -r ./$src/deploy/* $path
-done < <(find . | grep deploy/service.yaml | sed 's/\/deploy\/service.yaml//g' | sed 's/\.\///g')
-
-find .deploy -type f -print0 | while IFS= read -r -d '' file; do
-    if [[ ! -d "$file" && ! "$file" == *".md" ]]; then
-        echo "Inject: $file"
-        envsubst < "$file" > "$file.tmp" && mv "$file.tmp" "$file"
-    fi
+  mkdir -p ".config/$dst"
+  cue export "v2k.org/$src" -e config > ".config/$dst/config.json"
 done
-

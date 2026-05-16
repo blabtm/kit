@@ -1,0 +1,171 @@
+{
+    "cams": {
+        "1m1l": {
+            "axes": {
+                "x": {
+                    "weight": 0.5
+                },
+                "z": {
+                    "weight": 1.0
+                }
+            }
+        },
+        "1m1r": {
+            "axes": {
+                "x": {
+                    "weight": 0.0
+                },
+                "z": {
+                    "weight": 0.0
+                }
+            }
+        },
+        "1m2l": {
+            "axes": {
+                "x": {
+                    "weight": 1.0
+                },
+                "z": {
+                    "weight": 1.0
+                }
+            }
+        },
+        "1m2r": {
+            "axes": {
+                "x": {
+                    "weight": 0.0
+                },
+                "z": {
+                    "weight": 0.0
+                }
+            }
+        },
+        "2m1l": {
+            "axes": {
+                "x": {
+                    "weight": 0.0
+                },
+                "z": {
+                    "weight": 0.0
+                }
+            }
+        },
+        "2m1r": {
+            "axes": {
+                "x": {
+                    "weight": 0.0
+                },
+                "z": {
+                    "weight": 0.0
+                }
+            }
+        },
+        "2m2l": {
+            "axes": {
+                "x": {
+                    "weight": 0.0
+                },
+                "z": {
+                    "weight": 0.0
+                }
+            }
+        },
+        "2m2r": {
+            "axes": {
+                "x": {
+                    "weight": 0.0
+                },
+                "z": {
+                    "weight": 0.0
+                }
+            }
+        },
+        "3m1l": {
+            "axes": {
+                "x": {
+                    "weight": 0.0
+                },
+                "z": {
+                    "weight": 0.0
+                }
+            }
+        },
+        "3m1r": {
+            "axes": {
+                "x": {
+                    "weight": 0.0
+                },
+                "z": {
+                    "weight": 0.0
+                }
+            }
+        },
+        "3m2l": {
+            "axes": {
+                "x": {
+                    "weight": 0.0
+                },
+                "z": {
+                    "weight": 0.0
+                }
+            }
+        },
+        "3m2r": {
+            "axes": {
+                "x": {
+                    "weight": 0.0
+                },
+                "z": {
+                    "weight": 0.0
+                }
+            }
+        },
+        "4m1l": {
+            "axes": {
+                "x": {
+                    "weight": 0.0
+                },
+                "z": {
+                    "weight": 0.0
+                }
+            }
+        },
+        "4m1r": {
+            "axes": {
+                "x": {
+                    "weight": 0.0
+                },
+                "z": {
+                    "weight": 0.0
+                }
+            }
+        },
+        "4m2l": {
+            "axes": {
+                "x": {
+                    "weight": 0.0
+                },
+                "z": {
+                    "weight": 0.0
+                }
+            }
+        },
+        "4m2r": {
+            "axes": {
+                "x": {
+                    "weight": 0.0
+                },
+                "z": {
+                    "weight": 0.0
+                }
+            }
+        }
+    },
+    "solver": {
+        "maxIterations": 1000,
+        "maxEvaluations": 1000,
+        "absoluteCost": 1E-7,
+        "relativeCost": 1E-10
+    },
+    "window": 3
+}

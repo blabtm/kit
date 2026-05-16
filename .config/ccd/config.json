@@ -1,0 +1,280 @@
+{
+    "cams": {
+        "snd_ip": {
+            "axes": {
+                "x": {
+                    "beta": 0.050000000,
+                    "dispersion": 0.0000073710893
+                },
+                "z": {
+                    "beta": 0.050000000,
+                    "dispersion": 0.0
+                }
+            }
+        },
+        "1m1l": {
+            "axes": {
+                "x": {
+                    "beta": 4.3573654,
+                    "dispersion": 0.00088864647
+                },
+                "z": {
+                    "beta": 5.4344124,
+                    "dispersion": 0.0
+                }
+            }
+        },
+        "1m1r": {
+            "axes": {
+                "x": {
+                    "beta": 0.20768900,
+                    "dispersion": 0.37415392
+                },
+                "z": {
+                    "beta": 2.7330670,
+                    "dispersion": 0.0
+                }
+            }
+        },
+        "bpm1": {
+            "axes": {
+                "x": {
+                    "beta": 3.2520637,
+                    "dispersion": 0.77743495
+                },
+                "z": {
+                    "beta": 1.7622597,
+                    "dispersion": 0.0
+                }
+            }
+        },
+        "1m2l": {
+            "axes": {
+                "x": {
+                    "beta": 1.7553643,
+                    "dispersion": 0.37415184
+                },
+                "z": {
+                    "beta": 2.5989238,
+                    "dispersion": 0.0
+                }
+            }
+        },
+        "1m2r": {
+            "axes": {
+                "x": {
+                    "beta": 0.78512362,
+                    "dispersion": 0.00090734931
+                },
+                "z": {
+                    "beta": 3.3736618,
+                    "dispersion": 0.0
+                }
+            }
+        },
+        "rf": {
+            "axes": {
+                "x": {
+                    "beta": 1.5623249,
+                    "dispersion": 0.000036442320
+                },
+                "z": {
+                    "beta": 1.7807728,
+                    "dispersion": 0.0
+                }
+            }
+        },
+        "2m2l": {
+            "axes": {
+                "x": {
+                    "beta": 0.83579199,
+                    "dispersion": 0.00090776309
+                },
+                "z": {
+                    "beta": 3.5640149,
+                    "dispersion": 0.0
+                }
+            }
+        },
+        "2m2r": {
+            "axes": {
+                "x": {
+                    "beta": 1.6935199,
+                    "dispersion": 0.37415748
+                },
+                "z": {
+                    "beta": 2.7785630,
+                    "dispersion": 0.0
+                }
+            }
+        },
+        "bpm2": {
+            "axes": {
+                "x": {
+                    "beta": 3.0759482,
+                    "dispersion": 0.77744726
+                },
+                "z": {
+                    "beta": 1.8739157,
+                    "dispersion": 0.0
+                }
+            }
+        },
+        "2m1l": {
+            "axes": {
+                "x": {
+                    "beta": 0.20469449,
+                    "dispersion": 0.37414851
+                },
+                "z": {
+                    "beta": 2.7745033,
+                    "dispersion": 0.0
+                }
+            }
+        },
+        "2m1r": {
+            "axes": {
+                "x": {
+                    "beta": 4.2724391,
+                    "dispersion": 0.00088693574
+                },
+                "z": {
+                    "beta": 5.3273985,
+                    "dispersion": 0.0
+                }
+            }
+        },
+        "cmd_ip": {
+            "axes": {
+                "x": {
+                    "beta": 0.049932409,
+                    "dispersion": 0.0000072722714
+                },
+                "z": {
+                    "beta": 0.049909581,
+                    "dispersion": 0.0
+                }
+            }
+        },
+        "3m1l": {
+            "axes": {
+                "x": {
+                    "beta": 4.2720247,
+                    "dispersion": 0.00088893285
+                },
+                "z": {
+                    "beta": 5.3272084,
+                    "dispersion": 0.0
+                }
+            }
+        },
+        "3m1r": {
+            "axes": {
+                "x": {
+                    "beta": 0.20466759,
+                    "dispersion": 0.37412549
+                },
+                "z": {
+                    "beta": 2.7745634,
+                    "dispersion": 0.0
+                }
+            }
+        },
+        "bpm3": {
+            "axes": {
+                "x": {
+                    "beta": 3.0762463,
+                    "dispersion": 0.77749843
+                },
+                "z": {
+                    "beta": 1.8737184,
+                    "dispersion": 0.0
+                }
+            }
+        },
+        "3m2l": {
+            "axes": {
+                "x": {
+                    "beta": 1.6935564,
+                    "dispersion": 0.37418049
+                },
+                "z": {
+                    "beta": 2.7785523,
+                    "dispersion": 0.0
+                }
+            }
+        },
+        "3m2r": {
+            "axes": {
+                "x": {
+                    "beta": 0.83579005,
+                    "dispersion": 0.00090754998
+                },
+                "z": {
+                    "beta": 3.5640225,
+                    "dispersion": 0.0
+                }
+            }
+        },
+        "4m2l": {
+            "axes": {
+                "x": {
+                    "beta": 0.78511876,
+                    "dispersion": 0.00090684969
+                },
+                "z": {
+                    "beta": 3.3736799,
+                    "dispersion": 0.0
+                }
+            }
+        },
+        "4m2r": {
+            "axes": {
+                "x": {
+                    "beta": 1.7553962,
+                    "dispersion": 0.37416944
+                },
+                "z": {
+                    "beta": 2.5989165,
+                    "dispersion": 0.0
+                }
+            }
+        },
+        "bpm4": {
+            "axes": {
+                "x": {
+                    "beta": 3.2523067,
+                    "dispersion": 0.77747408
+                },
+                "z": {
+                    "beta": 1.7621193,
+                    "dispersion": 0.0
+                }
+            }
+        },
+        "4m1l": {
+            "axes": {
+                "x": {
+                    "beta": 0.20766469,
+                    "dispersion": 0.37413631
+                },
+                "z": {
+                    "beta": 2.7331157,
+                    "dispersion": 0.0
+                }
+            }
+        },
+        "4m1r": {
+            "axes": {
+                "x": {
+                    "beta": 4.3571043,
+                    "dispersion": 0.00088986198
+                },
+                "z": {
+                    "beta": 5.4342901,
+                    "dispersion": 0.0
+                }
+            }
+        }
+    }
+}

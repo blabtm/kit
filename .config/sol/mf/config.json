@@ -1,0 +1,19 @@
+{
+    "yoke": {
+        "relativePermeability": 1000
+    },
+    "coils": {
+        "nbti": {
+            "currentAmp": 180,
+            "numberOfTurns": 8710
+        },
+        "nbsn": {
+            "currentAmp": 107,
+            "numberOfTurns": 4367
+        },
+        "comp": {
+            "currentAmp": 107,
+            "numberOfTurns": 4493
+        }
+    }
+}
