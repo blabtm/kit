@@ -1,4 +1,3 @@
-#include "schemaregistry/rest/model/Schema.h"
 #include <any>
 #include <atomic>
 #include <cassert>
@@ -8,26 +7,23 @@
 #include <kafka/KafkaConsumer.h>
 #include <kafka/KafkaProducer.h>
 #include <kafka/ProducerCommon.h>
+#include <list>
 #include <optional>
 #include <spdlog/spdlog.h>
-
-#include <schemaregistry/rest/SchemaRegistryClient.h>
-#include <schemaregistry/serdes/protobuf/ProtobufDeserializer.h>
-#include <schemaregistry/serdes/protobuf/ProtobufSerializer.h>
 
 #include <v2k/beam/AxisSize.pb.h>
 #include <v2k/beam/Current.pb.h>
 #include <v2k/beam/Emittance.pb.h>
 #include <v2k/beam/EnergySpread.pb.h>
 
-#include <v2k/ccd.h>
-#include <v2k/em_es.h>
+#include <v2k/ccd/config.h>
+#include <v2k/em_es/config.h>
+#include <v2k/em_es/em_es.h>
 
-using namespace schemaregistry::rest;
-using namespace schemaregistry::serdes;
-using namespace schemaregistry::serdes::protobuf;
 using namespace kafka::clients::consumer;
 using namespace kafka::clients::producer;
+
+using json = nlohmann::json;
 
 namespace v2k {
 
@@ -210,10 +206,14 @@ int main(int argc, char **argv) {
 
   char const *const dir = getenv("CONFIG_DIR");
   char const *const rp_uri = getenv("RP_URI");
-  char const *const sr_uri = getenv("SR_URI");
 
-  v2k::ccd::Config const ccd_config{std::format("{}/ccd/config.yaml", dir)};
-  v2k::ems::Config const ems_config{std::format("{}/em-es/config.yaml", dir)};
+  v2k::ccd::Config ccd_config;
+  v2k::ccd::from_json(json::parse(std::format("{}/ccd/config.json", dir)),
+                      ccd_config);
+
+  v2k::em_es::Config config;
+  v2k::em_es::from_json(json::parse(std::format("{}/em-es/config.json", dir)),
+                        config);
 
   kafka::Properties const props({{"bootstrap.servers", {{rp_uri}}}});
   KafkaConsumer consumer(props);
@@ -221,34 +221,21 @@ int main(int argc, char **argv) {
 
   std::set<std::string> topics;
   v2k::StreamGroup group(
-      v2k::TumblingWindowAssigner::make(ems_config.window * 1000));
-  std::vector<v2k::ems::AxisRealization> realizations;
-
-  auto const sr_config =
-      std::make_shared<ClientConfiguration>(std::vector<std::string>{sr_uri});
-  auto const sr_client = SchemaRegistryClient::newClient(sr_config);
-
-  std::unordered_map<std::string, std::string> rule_config{};
-  auto deser_config = DeserializerConfig(std::nullopt, false, rule_config);
-
-  auto const cur_deser =
-      std::make_unique<ProtobufDeserializer<v2k::beam::Current>>(
-          sr_client, nullptr, deser_config);
-  auto const axis_deser =
-      std::make_unique<ProtobufDeserializer<v2k::beam::AxisSize>>(
-          sr_client, nullptr, deser_config);
+      v2k::TumblingWindowAssigner::make(config.get_window() * 1000));
+  std::vector<v2k::em_es::AxisRealization> realizations;
 
   auto cur_stream = v2k::Stream::make(nullptr);
   auto ccd_stream = std::map<std::string, v2k::Stream::Ptr>();
 
-  for (auto it = ems_config.cams.begin(); it != ems_config.cams.end(); ++it) {
+  for (auto it = config.get_cams().begin(); it != config.get_cams().end();
+       ++it) {
     auto const &setup = it->second;
-    auto const &config = ccd_config.cams.at(it->first);
+    auto const &config = ccd_config.get_cams().at(it->first);
 
-    if (setup.axes.x.weight != 0) {
+    if (setup.get_axes().get_x().get_weight() != 0) {
       realizations.push_back({
-          .config = config.axes.x,
-          .setup = setup.axes.x,
+          .config = config.get_axes().get_x(),
+          .setup = setup.get_axes().get_x(),
           .measurement = 0,
       });
 
@@ -260,10 +247,10 @@ int main(int argc, char **argv) {
       group.Add(stream);
     }
 
-    if (setup.axes.z.weight != 0) {
+    if (setup.get_axes().get_z().get_weight() != 0) {
       realizations.push_back({
-          .config = config.axes.z,
-          .setup = setup.axes.z,
+          .config = config.get_axes().get_z(),
+          .setup = setup.get_axes().get_z(),
           .measurement = 0,
       });
 
@@ -280,8 +267,13 @@ int main(int argc, char **argv) {
   group.Add(cur_stream);
   consumer.subscribe(topics);
 
+  v2k::beam::Current current;
+  v2k::beam::AxisSize axis_size;
   v2k::beam::Emittance emittance;
   v2k::beam::EnergySpread energy_spread;
+
+  std::vector<std::byte> em_data{emittance.ByteSizeLong()};
+  std::vector<std::byte> es_data{emittance.ByteSizeLong()};
 
   while (running) {
     auto records = consumer.poll(std::chrono::milliseconds(500));
@@ -292,39 +284,13 @@ int main(int argc, char **argv) {
         continue;
       }
 
-      // Remove Confluent wire header and message index
-      char const *const payload = &((char const *)record.value().data())[6];
-      std::size_t const size = record.value().size() - 6;
-
       if ("vepp.currents.fz" == record.topic()) {
-        SerializationContext ser_ctx;
-        ser_ctx.topic = record.topic();
-        ser_ctx.serde_type = SerdeType::Value;
-        ser_ctx.serde_format = SerdeFormat::Protobuf;
-        ser_ctx.headers = std::nullopt;
-
-        std::vector<uint8_t> payload(
-            static_cast<const uint8_t *>(record.value().data()),
-            static_cast<const uint8_t *>(record.value().data()) +
-                record.value().size());
-
-        auto const cur = cur_deser->deserialize(ser_ctx, payload);
-        cur_stream->Push(cur->time(), cur->value());
+        current.ParseFromArray(record.value().data(), record.value().size());
+        cur_stream->Push(current.time(), current.value());
       } else {
-        SerializationContext ser_ctx;
-        ser_ctx.topic = record.topic();
-        ser_ctx.serde_type = SerdeType::Value;
-        ser_ctx.serde_format = SerdeFormat::Protobuf;
-        ser_ctx.headers = std::nullopt;
-
-        std::vector<uint8_t> payload(
-            static_cast<const uint8_t *>(record.value().data()),
-            static_cast<const uint8_t *>(record.value().data()) +
-                record.value().size());
-
-        auto const axis_size = axis_deser->deserialize(ser_ctx, payload);
+        axis_size.ParseFromArray(record.value().data(), record.value().size());
         ccd_stream.at(record.topic())
-            ->Push(axis_size->time(), axis_size->value());
+            ->Push(axis_size.time(), axis_size.value());
       }
 
       auto const completed = group.Completed();
@@ -361,43 +327,36 @@ int main(int argc, char **argv) {
           continue;
         }
 
-        if (!v2k::ems::Estimate(realizations, estimation)) {
+        if (!v2k::em_es::Estimate(realizations, estimation)) {
           spdlog::error("estimation: failed");
         }
 
         auto deliveryCb = [](const RecordMetadata &metadata,
-                             const kafka::Error &error) {
-          if (!error) {
-            std::cout << "Message delivered: " << metadata.toString()
-                      << std::endl;
-          } else {
-            std::cerr << "Message failed to be delivered: " << error.message()
-                      << std::endl;
-          }
-        };
+                             const kafka::Error &error) {};
 
         emittance.set_time(window.end);
         emittance.set_emittance(estimation[0]);
         emittance.set_current(cur_opt.value());
 
-        auto const em_data = new char[emittance.ByteSizeLong()];
-        emittance.SerializeToArray(em_data, emittance.ByteSizeLong());
+        em_data.reserve(emittance.ByteSizeLong());
+        emittance.SerializeToArray(em_data.data(), emittance.ByteSizeLong());
 
-        producer.send(kafka::clients::producer::ProducerRecord(
-                          "vepp.emittance", kafka::NullKey,
-                          kafka::Value(em_data, emittance.ByteSizeLong())),
-                      deliveryCb);
+        producer.send(
+            kafka::clients::producer::ProducerRecord(
+                "vepp.emittance", kafka::NullKey,
+                kafka::Value(em_data.data(), emittance.ByteSizeLong())),
+            deliveryCb);
 
         energy_spread.set_time(window.end);
         energy_spread.set_energy_spread(estimation[1]);
         energy_spread.set_current(cur_opt.value());
 
-        auto const es_data = new char[energy_spread.ByteSizeLong()];
-        emittance.SerializeToArray(es_data, energy_spread.ByteSizeLong());
+        es_data.reserve(energy_spread.ByteSizeLong());
+        emittance.SerializeToArray(es_data.data(), energy_spread.ByteSizeLong());
 
         producer.send(kafka::clients::producer::ProducerRecord(
                           "vepp.energy_spread", kafka::NullKey,
-                          kafka::Value(em_data, energy_spread.ByteSizeLong())),
+                          kafka::Value(em_data.data(), energy_spread.ByteSizeLong())),
                       deliveryCb);
       }
     }

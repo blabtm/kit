@@ -7,6 +7,7 @@ vars:
   DEPLOY_DIR: "{{.ROOT_DIR}}/.deploy"
   TOOLS_DIR: "{{.ROOT_DIR}}/tools"
   BLOB_DIR: "{{.ROOT_DIR}}/blob"
+  MODEL_DIR: "{{.ROOT_DIR}}/model"
 
 dotenv:
   - platform/env/secret.env
@@ -53,3 +54,7 @@ tasks:
     cmds:
       - "{{.TOOLS_DIR}}/sync/push-app.sh"
 
+  gen:schema:
+    cmds:
+      - cue export --out openapi {{.MODEL_DIR}}/hfr/voltage.cue > /tmp/v2k.hfr.json
+      - gnostic --grpc-out={{.SCHEMA_DIR}}/v2k/hfr /tmp/v2k.hfr.json

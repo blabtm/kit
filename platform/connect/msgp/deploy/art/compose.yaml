@@ -1,0 +1,66 @@
+networks:
+  v2k:
+    external: true
+
+volumes:
+  v2k-schema:
+    external: true
+
+services:
+  connect:
+    image: docker.redpanda.com/redpandadata/connect
+    entrypoint: /bin/sh
+    command: -c 'echo "$$CONNECT" > /tmp/connect.yaml && /redpanda-connect -c /tmp/connect.yaml'
+    volumes:
+      - v2k-schema:/etc/v2k/schema
+    environment:
+      CONNECT: |
+        input:
+          mqtt:
+            urls: ["tcp://$MQ_HOST:$MQ_MQTT_PORT"]
+            topics: ["$$share/connect/VEPP/#"]
+            client_id: "connect-node-$${! uuid_v4() }"
+
+        pipeline:
+          processors:
+            - msgpack:
+                operator: "to_json"
+            - mapping: |
+                meta topic = meta("mqtt_topic").replace_all("/", ".").lowercase()
+            - switch:
+                - check: meta("topic").re_match("vepp.currents.fz")
+                  processors:
+                    - protobuf:
+                        operator: "from_json"
+                        message: "v2k.beam.Current"
+                        import_paths: ["/etc/v2k/schema"]
+
+                - check: meta("topic").re_match("vepp.ccd.*.sigma_[xz]")
+                  processors:
+                    - protobuf:
+                        operator: "from_json"
+                        message: "v2k.beam.AxisSize"
+                        import_paths: ["/etc/v2k/schema"]
+
+                - check: this.value.type() == "number"
+                  processors:
+                    - protobuf:
+                        operator: "from_json"
+                        message: "v2k.GenericNumber"
+                        import_paths: ["/etc/v2k/schema"]
+
+                - processors:
+                    - protobuf:
+                        operator: "from_json"
+                        message: "v2k.GenericString"
+                        import_paths: ["/etc/v2k/schema"]
+
+        output:
+          redpanda:
+            seed_brokers: ["$RP_HOST:$RP_LAN_PORT"]
+            topic: $${! meta("topic") }
+
+    networks:
+      - v2k
+    deploy:
+      replicas: 1

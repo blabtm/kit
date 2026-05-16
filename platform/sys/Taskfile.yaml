@@ -22,6 +22,7 @@ tasks:
     status:
       - test -n "$(docker volume ls -q -f name=v2k-config)"
       - test -n "$(docker volume ls -q -f name=v2k-blob)"
+      - test -n "$(docker volume ls -q -f name=v2k-schema)"
     cmds:
       - |
         docker volume create --driver local                             \
@@ -35,6 +36,12 @@ tasks:
           --opt o=bind,rw                                               \
           --opt device=$REPO_PATH/blob                                  \
         v2k-blob
+      - |
+        docker volume create --driver local                             \
+          --opt type=none                                               \
+          --opt o=bind,rw                                               \
+          --opt device=$REPO_PATH/schema                                \
+        v2k-schema
     internal: true
 
   swarm:volume:nfs:setup:

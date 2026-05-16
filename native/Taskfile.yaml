@@ -4,6 +4,14 @@ includes:
   hfr-v:
     taskfile: ./hfr-v/Taskfile.yaml
     dir: ./hfr-v
-  em-es.cpp:
-    taskfile: ./em-es.cpp/Taskfile.yaml
-    dir: ./em-es.cpp
+  ccd:
+    taskfile: ./ccd/Taskfile.yaml
+    dir: ./ccd
+  em-es:
+    taskfile: ./em-es/Taskfile.yaml
+    dir: ./em-es
+
+tasks:
+  build:
+    cmds:
+      - cmake --build build {{.CLI_ARGS}}

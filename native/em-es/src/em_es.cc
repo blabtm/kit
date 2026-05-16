@@ -1,14 +1,14 @@
 #include <spdlog/spdlog.h>
-#include <v2k/em_es.h>
+#include <v2k/em_es/em_es.h>
 
-bool v2k::ems::CostFunction::Evaluate(double const *const *x, double *r,
-                                      double **j) const {
+bool v2k::em_es::CostFunction::Evaluate(double const *const *x, double *r,
+                                        double **j) const {
   for (int i = 0; i < axes_.size(); ++i) {
     auto const &axis = axes_[i];
 
     double const size = axis.measurement;
-    double const beta = axis.config.beta;
-    double const dispersion = axis.config.dispersion;
+    double const beta = axis.config.get_beta();
+    double const dispersion = axis.config.get_dispersion();
     double const emittance = x[0][0];
     double const spread = x[0][1];
     double const dxs = dispersion * spread;
@@ -24,8 +24,8 @@ bool v2k::ems::CostFunction::Evaluate(double const *const *x, double *r,
   return true;
 };
 
-bool v2k::ems::Estimate(std::vector<AxisRealization> const &axes, double *x) {
-  v2k::ems::CostFunction *const function = new CostFunction(axes);
+bool v2k::em_es::Estimate(std::vector<AxisRealization> const &axes, double *x) {
+  v2k::em_es::CostFunction *const function = new CostFunction(axes);
   ceres::Problem problem;
 
   problem.AddResidualBlock(function, nullptr, x);

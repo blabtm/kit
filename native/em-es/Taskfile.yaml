@@ -1,7 +1,22 @@
 version: "3"
 
 tasks:
-  generate:
+  gen:model:
+    cmds:
+      - cue export {{.MODEL_DIR}}/em-es/config.cue -e \#Config --out jsonschema > /tmp/v2k.schema.json
+      - sed -i -e 's/%23/#/g' /tmp/v2k.schema.json
+      - mkdir -p include/v2k/em_es
+      - |
+        quicktype                           \
+          --src /tmp/v2k.schema.json        \
+          --src-lang schema                 \
+          --lang cpp                        \
+          --no-boost                        \
+          --include-location global-include \
+          --namespace v2k::em_es            \
+          --out include/v2k/em_es/config.h
+
+  gen:schema:
     cmds:
       - protoc -I{{.SCHEMA_DIR}} --cpp_out=gen v2k/Log.proto
       - protoc -I{{.SCHEMA_DIR}} --cpp_out=gen v2k/beam/AxisSize.proto
@@ -27,4 +42,4 @@ tasks:
       SR_URI: "http://{{.LOCALHOST}}:9080"
       CONFIG_DIR: "{{.CONFIG_DIR}}"
     cmds:
-      - ./build/em-es.cpp/svc-em-es
+      - ./build/em-es/svc-em-es

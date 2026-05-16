@@ -1,0 +1,16 @@
+version: "3"
+
+tasks:
+  gen:
+    cmds:
+      - cue export {{.MODEL_DIR}}/ccd/config.cue -e \#Config --out jsonschema > /tmp/v2k.schema.json
+      - sed -i -e 's/%23/#/g' /tmp/v2k.schema.json
+      - |
+        quicktype                           \
+          --src /tmp/v2k.schema.json        \
+          --src-lang schema                 \
+          --lang cpp                        \
+          --no-boost                        \
+          --include-location global-include \
+          --namespace v2k::ccd              \
+          --out include/v2k/ccd/config.h
