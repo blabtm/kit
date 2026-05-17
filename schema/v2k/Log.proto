@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package v2k;
 
-option java_package = "org.blab.v2k";
+import "google/protobuf/any.proto"
 
 message Log {
   enum Level {
@@ -16,4 +16,7 @@ message Log {
   int64 time = 1;
   Level level = 2;
   string message = 3;
+  map<string, string> tags = 4;
+
+  google.protobuf.Any details = 10;
 }
