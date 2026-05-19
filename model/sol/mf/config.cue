@@ -1,19 +1,19 @@
 package mf
 
 #Material: {
-	relativePermeability: >0.0
+	relativePermeability!: >0.0
 }
 
 #Coil: {
-	currentAmp:    >0.0
-	numberOfTurns: >0
+	currentAmp!:    >0.0
+	numberOfTurns!: >0
 }
 
 #Config: {
-	yoke: #Material
+	yoke!: #Material
 	coils: {
-		nbti: #Coil
-		nbsn: #Coil
-		comp: #Coil
+		nbti!: #Coil
+		nbsn!: #Coil
+		comp!: #Coil
 	}
 }

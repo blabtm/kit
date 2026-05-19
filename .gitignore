@@ -2,6 +2,7 @@
 **/*.txt
 !CMakeLists.txt
 
+.config/
 .deploy/
 .obs.*
 
