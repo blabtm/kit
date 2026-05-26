@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package v2k.hfr;
+
+message Voltage {
+	int32 value = 1;
+}

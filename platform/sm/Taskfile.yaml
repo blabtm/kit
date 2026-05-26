@@ -1,59 +1,20 @@
 version: "3"
 
-vars:
-  VERSION: 0.0.1
-
-env:
-  VERSION: "{{.VERSION}}"
-
 includes:
   ui:
     taskfile: ./ui/Taskfile.yaml
     dir: ./ui
 
 tasks:
-  install:
-    deps: [build:amd64]
-    cmds:
-      - sudo cp sm_{{.VERSION}}_amd64 /usr/local/bin/sm
-      - sudo mkdir -p /etc/sm
-      - sudo cp config.yaml /etc/sm/config.yaml
-    generates:
-      - /usr/local/bin/sm
-      - /etc/sm/config.yaml
-
   build:amd64:
     env:
       GOOS: linux
       GOARCH: amd64
       CGO_ENABLED: 0
     cmds:
-      - go build -o sm_{{.VERSION}}_amd64 .
+      - go build -o sm_amd64 .
     generates:
-      - sm_{{.VERSION}}_amd64
-
-  build:amd64:deb:
-    cmds:
-      - mkdir -p sm_{{.VERSION}}_amd64
-      - mkdir -p sm_{{.VERSION}}_amd64/usr/local/bin
-      - mkdir -p sm_{{.VERSION}}_amd64/etc/sm
-      - mkdir -p sm_{{.VERSION}}_amd64/DEBIAN
-      - go build -o sm_{{.VERSION}}_amd64/usr/local/bin/sm .
-      - cp config.yaml sm_{{.VERSION}}_amd64/etc/sm/
-      - |
-        cat <<EOF > sm_{{.VERSION}}_amd64/DEBIAN/control
-        Package: v2k-sm
-        Version: {{.VERSION}}
-        Section: custom
-        Priority: optional
-        Architecture: amd64
-        Maintainer: Ivan Paraskun <ig.paraskun@gmail.com>
-        Description: VEPP-2000 Collider platform service management middleware.
-        EOF
-      - dpkg-deb --build sm_{{.VERSION}}_amd64
-      - rm -r sm_{{.VERSION}}_amd64
-    generates:
-      - sm_{{.VERSION}}_amd64.deb
+      - sm_amd64
 
   build:arm64:
     env:
@@ -61,15 +22,15 @@ tasks:
       GOARCH: arm64
       CGO_ENABLED: 0
     cmds:
-      - go build -o sm_{{.VERSION}}_arm64 .
+      - go build -o sm_arm64 .
     generates:
-      - sm_{{.VERSION}}_arm64
+      - sm_arm64
 
-  build:all:
+  release:
     cmds:
       - task: build:amd64
       - task: build:arm64
-      - envsubst '${VERSION}' < util/install.sh > install.sh
+      - envsubst '${TAG}' < util/install.sh > install.sh
 
   image:
     cmds:
@@ -82,6 +43,7 @@ tasks:
   run:
     env:
       ADDR: ":8080"
+      MODULE_PATH: "{{.ROOT_DIR}}"
       CONFIG_PATH: "{{.CONFIG_DIR}}"
       DEPLOY_PATH: "{{.DEPLOY_DIR}}"
       CORS_ALLOWED_ORIGINS: "http://localhost:3000"

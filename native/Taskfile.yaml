@@ -1,15 +1,15 @@
 version: "3"
 
 includes:
-  hfr-v:
-    taskfile: ./hfr-v/Taskfile.yaml
-    dir: ./hfr-v
+  hfr_v:
+    taskfile: ./hfr_v/Taskfile.yaml
+    dir: ./hfr_v
   ccd:
     taskfile: ./ccd/Taskfile.yaml
     dir: ./ccd
-  em-es:
-    taskfile: ./em-es/Taskfile.yaml
-    dir: ./em-es
+  em_es:
+    taskfile: ./em_es/Taskfile.yaml
+    dir: ./em_es
 
 tasks:
   build:

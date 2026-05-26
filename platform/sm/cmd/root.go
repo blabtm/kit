@@ -3,11 +3,13 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 
 	v1 "github.com/blabtm/v2k/platform/sm/rest/v1"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"sigs.k8s.io/yaml"
 )
 
 var config string
@@ -43,46 +45,6 @@ var Ls = &cobra.Command{
 	},
 }
 
-var Up = &cobra.Command{
-	Use:   "up [name]",
-	Short: "Take the service online.",
-	Args:  cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		err := v1.NewClient(
-			viper.GetString("remote.host"),
-			viper.GetInt("remote.port"),
-		).Up(args[0])
-
-		if err != nil {
-			return err
-		}
-
-		fmt.Printf("%s: UP\n", args[0])
-
-		return nil
-	},
-}
-
-var Down = &cobra.Command{
-	Use:   "down [name]",
-	Short: "Take the service offline.",
-	Args:  cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		err := v1.NewClient(
-			viper.GetString("remote.host"),
-			viper.GetInt("remote.port"),
-		).Down(args[0])
-
-		if err != nil {
-			return err
-		}
-
-		fmt.Printf("%s: DOWN\n", args[0])
-
-		return nil
-	},
-}
-
 var Ps = &cobra.Command{
 	Use:   "ps [name]",
 	Short: "Get the current operational status of the service.",
@@ -104,11 +66,63 @@ var Ps = &cobra.Command{
 	},
 }
 
+var Get = &cobra.Command{
+	Use:   "get [name]",
+	Short: "Get runtime configuration of the service.",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		raw, err := v1.NewClient(
+			viper.GetString("remote.host"),
+			viper.GetInt("remote.port"),
+		).Get(args[0])
+
+		if err != nil {
+			return err
+		}
+
+		yml, err := yaml.JSONToYAML(raw)
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Println(string(yml))
+
+		return nil
+	},
+}
+
+var Set = &cobra.Command{
+	Use:   "set [name]",
+	Short: "Set runtime configuration of the service.",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		raw, err := io.ReadAll(os.Stdin)
+
+		if err != nil {
+			return err
+		}
+
+		err = v1.NewClient(
+			viper.GetString("remote.host"),
+			viper.GetInt("remote.port"),
+		).Set(args[0], raw)
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Println("OK")
+
+		return nil
+	},
+}
+
 func init() {
 	Root.AddCommand(Ls)
 	Root.AddCommand(Ps)
-	Root.AddCommand(Up)
-	Root.AddCommand(Down)
+	Root.AddCommand(Get)
+	Root.AddCommand(Set)
 
 	Root.PersistentFlags().StringVarP(&config, "config", "c", "", "configuration file (default locations are: $HOME/.sm/config.yaml, /etc/sm/config.yaml)")
 	Root.PersistentFlags().StringVar(&remoteHost, "remote.host", "", "remote host")

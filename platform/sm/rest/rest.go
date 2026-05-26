@@ -9,8 +9,9 @@ import (
 	v1 "github.com/blabtm/v2k/platform/sm/rest/v1"
 	"github.com/rs/cors"
 
-	_ "github.com/blabtm/v2k/platform/sm/docker"
+	_ "github.com/blabtm/v2k/platform/sm/compose"
 	_ "github.com/blabtm/v2k/platform/sm/swarm"
+	_ "github.com/blabtm/v2k/platform/sm/systemd"
 )
 
 var addr string
@@ -29,12 +30,17 @@ func init() {
 func main() {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /v1/svc", v1.Ls)
-	mux.HandleFunc("GET /v1/svc/{name}/ps", v1.Ps)
-	mux.HandleFunc("PUT /v1/svc/{name}/up", v1.Up)
-	mux.HandleFunc("PUT /v1/svc/{name}/down", v1.Down)
-	mux.HandleFunc("GET /v1/svc/{name}/config", v1.GetConfig)
-	mux.HandleFunc("PUT /v1/svc/{name}/config", v1.PutConfig)
+	// List all registered services.
+	mux.HandleFunc("GET /v1", v1.Ls)
+
+	// Get the current operational status of the service (UP or DOWN).
+	mux.HandleFunc("GET /v1/{name}/ps", v1.Ps)
+
+	// Get the runtime (desired) configuration of the service.
+	mux.HandleFunc("GET /v1/{name}/get", v1.Get)
+
+	// Set the runtime (desired) configuration of the service and enforce it.
+	mux.HandleFunc("PUT /v1/{name}/set", v1.Set)
 
 	c := cors.New(cors.Options{
 		AllowedOrigins: allowedOrigins,

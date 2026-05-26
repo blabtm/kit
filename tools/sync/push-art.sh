@@ -1,23 +1,28 @@
 #!/bin/bash
 
-echo "Synchronizing deployments."
+echo "Synchronizing deployments..."
 
-mkdir -p .deploy && rm -rf .deploy/*
+mkdir -p deploy && rm -rf deploy/*
 
-while read -r src; do
-    path=$(sed 's/\./\//g' <<< "$src")
-    path=$(sed -E 's/(native|py|golang|jvm|platform)\///g' <<< "$path")
-    path="./.deploy/$path"
+find . | grep deploy/service.cue | while read file; do
+  src="$(sed 's|/deploy/service.cue$||g' <<< "$file")"
+  svc="$(sed -E 's/^\.\/(native|py|golang|jvm|platform)\///g' <<< "$src")"
 
-    echo "Sync: $src > $path"
-    mkdir -p $path
-    cp -r ./$src/deploy/* $path
-done < <(find . | grep deploy/service.yaml | sed 's/\/deploy\/service.yaml//g' | sed 's/\.\///g')
+  echo "$svc"
+  mkdir -p "deploy/$svc"
 
-find .deploy -type f -print0 | while IFS= read -r -d '' file; do
-    if [[ ! -d "$file" && ! "$file" == *".md" ]]; then
-        echo "Inject: $file"
-        envsubst < "$file" > "$file.tmp" && mv "$file.tmp" "$file"
-    fi
+  cue export "$file" --out yaml > "deploy/$svc/service.yaml"
+
+  if [[ "$?" != "0" ]]; then
+      echo "Malformed deployment file. Terminating."
+      rm -rf .deploy/*
+      exit 1
+  fi
+
+  cp -rf "$src/deploy/art" "deploy/$svc/art"
+
+  find "deploy/$svc/art" -type f | while read art; do
+    envsubst < "$art" > "$art.tmp"
+    mv "$art.tmp" "$art"
+  done
 done
-

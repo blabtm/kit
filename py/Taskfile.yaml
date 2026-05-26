@@ -1,9 +1,9 @@
 version: "3"
 
 includes:
-  em-es.sim:
-    taskfile: ./em-es.sim/Taskfile.yaml
-    dir: ./em-es.sim
+  em_es.sim:
+    taskfile: ./em_es/sim/Taskfile.yaml
+    dir: ./em_es/sim
   sol.mf:
-    taskfile: ./sol.mf/Taskfile.yaml
-    dir: ./sol.mf
+    taskfile: ./sol/mf/Taskfile.yaml
+    dir: ./sol/mf

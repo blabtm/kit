@@ -26,13 +26,15 @@ jobs:
         uses: go-task/setup-task@v1
 
       - name: Build
-        run: task platform:sm:build:all
+        run: task platform:sm:release
+        env:
+          TAG: ${{ github.ref_name }}
 
       - name: Release
         uses: softprops/action-gh-release@v3
         with:
           working_directory: platform/sm
           files: |
-            sm_*.*.*_amd64
-            sm_*.*.*_arm64
+            sm_amd64
+            sm_arm64
             install.sh

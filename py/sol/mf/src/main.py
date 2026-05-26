@@ -1,5 +1,5 @@
 import os
-import yaml
+import json
 import geo
 from pathlib import Path
 
@@ -21,17 +21,17 @@ import matplotlib.pyplot as plt
 config_dir = os.getenv("CONFIG_DIR")
 blob_dir = os.getenv("BLOB_DIR")
 
-with open(f"{config_dir}/sol.mf/config.yaml", "r") as file:
-    conf = yaml.safe_load(file)["service"]
+with open(f"{config_dir}/sol/mf/config.json", "r") as file:
+    conf = json.load(file)
     yoke = conf["yoke"]
     coils = conf["coils"]
 
-Path(f"{blob_dir}/sol.mf").mkdir(parents=True, exist_ok=True)
+Path(f"{blob_dir}/sol/mf").mkdir(parents=True, exist_ok=True)
 
-if not Path(f"{blob_dir}/sol.mf/mesh.msh").is_file():
-    geo.create_mesh(blob_dir)
+if not Path(f"{blob_dir}/sol/mf/mesh.msh").is_file():
+    geo.create_mesh(f"{blob_dir}/sol/mf")
 
-data = gmshio.read_from_msh(f"{blob_dir}/sol.mf/mesh.msh", MPI.COMM_WORLD, gdim=2)
+data = gmshio.read_from_msh(f"{blob_dir}/sol/mf/mesh.msh", MPI.COMM_WORLD, gdim=2)
 
 V = fem.functionspace(data.mesh, ("CG", 1))
 Q = fem.functionspace(data.mesh, ("DG", 0))
@@ -137,7 +137,7 @@ plotter.add_mesh(
 plotter.camera_position = "xy"
 plotter.reset_camera(bounds=[-1, 0.2, 0, 0.2, 0, 0])
 plotter.camera.zoom("tight")
-plotter.screenshot(f"{blob_dir}/sol.mf/u.png")
+plotter.screenshot(f"{blob_dir}/sol/mf/u.png")
 
 plotter = pyvista.Plotter(off_screen=True)
 
@@ -169,7 +169,7 @@ plotter.add_mesh(
 plotter.camera_position = "xy"
 plotter.reset_camera(bounds=[-1, 0.2, 0, 0.2, 0, 0])
 plotter.camera.zoom("tight")
-plotter.screenshot(f"{blob_dir}/sol.mf/b.png")
+plotter.screenshot(f"{blob_dir}/sol/mf/b.png")
 
 eps = 1e-6
 nz = 400
@@ -205,7 +205,7 @@ plt.xlabel("z [m]")
 plt.ylabel("Bz [T]")
 plt.grid(True)
 plt.tight_layout()
-plt.savefig(f"{blob_dir}/sol.mf/btz.png")
+plt.savefig(f"{blob_dir}/sol/mf/btz.png")
 
 R = fem.petsc.assemble_vector(fem.form(
     (1.0 / (mu * r)) * ufl.dot(ufl.grad(uh), ufl.grad(v)) * ufl.dx

@@ -212,7 +212,7 @@ int main(int argc, char **argv) {
                       ccd_config);
 
   v2k::em_es::Config config;
-  v2k::em_es::from_json(json::parse(std::format("{}/em-es/config.json", dir)),
+  v2k::em_es::from_json(json::parse(std::format("{}/em_es/config.json", dir)),
                         config);
 
   kafka::Properties const props({{"bootstrap.servers", {{rp_uri}}}});

@@ -33,7 +33,7 @@ tasks:
     deps:
       - generate
     cmds:
-      - docker build -t {{.DOCKER_REGISTRY}}/v2k.em-es:latest -f Dockerfile ..
+      - docker build -t {{.DOCKER_REGISTRY}}/v2k.em_es:latest -f Dockerfile ..
 
   run:
     dir: ..

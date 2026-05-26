@@ -2,9 +2,8 @@
 **/*.txt
 !CMakeLists.txt
 
-.config/
-.deploy/
-.obs.*
+deploy/
+obs/
 
 blob/
 node_modules/

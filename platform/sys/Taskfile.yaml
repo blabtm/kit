@@ -20,6 +20,7 @@ tasks:
 
   swarm:volume:setup:
     status:
+      - test -n "$(docker volume ls -q -f name=v2k-static)"
       - test -n "$(docker volume ls -q -f name=v2k-config)"
       - test -n "$(docker volume ls -q -f name=v2k-blob)"
       - test -n "$(docker volume ls -q -f name=v2k-schema)"
@@ -29,6 +30,12 @@ tasks:
           --opt type=none                   \
           --opt o=bind,ro                   \
           --opt device=$REPO_PATH/.config   \
+        v2k-static
+      - |
+        docker volume create --driver local \
+          --opt type=none                   \
+          --opt o=bind,ro                   \
+          --opt device=$REPO_PATH/config    \
         v2k-config
       - |
         docker volume create --driver local \

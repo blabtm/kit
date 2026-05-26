@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -15,7 +16,7 @@ type Client struct {
 
 func NewClient(host string, port int) *Client {
 	return &Client{
-		Base: fmt.Sprintf("http://%s:%d/v1/svc", host, port),
+		Base: fmt.Sprintf("http://%s:%d/v1", host, port),
 	}
 }
 
@@ -67,26 +68,31 @@ func (c *Client) Ps(name string) (*service.Status, error) {
 	return &status, nil
 }
 
-func (c *Client) Up(name string) error {
-	req, err := http.NewRequest(http.MethodPut, c.Base+"/"+name+"/up", nil)
+func (c *Client) Get(name string) ([]byte, error) {
+	res, err := http.Get(c.Base + "/" + name + "/get")
 
 	if err != nil {
-		return fmt.Errorf("http: %w", err)
+		return nil, fmt.Errorf("http: %w", err)
 	}
+	defer res.Body.Close()
 
-	res, err := http.DefaultClient.Do(req)
+	raw, err := io.ReadAll(res.Body)
 
 	if err != nil {
-		return fmt.Errorf("http: %w", err)
-	} else {
-		defer res.Body.Close()
+		return nil, fmt.Errorf("body: %w", err)
 	}
 
-	return nil
+	if res.StatusCode != 200 {
+		return nil, fmt.Errorf("%s", string(raw))
+	}
+
+	return raw, nil
 }
 
-func (c *Client) Down(name string) error {
-	req, err := http.NewRequest(http.MethodPut, c.Base+"/"+name+"/down", nil)
+func (c *Client) Set(name string, raw []byte) error {
+	body := bytes.NewReader(raw)
+	req, err := http.NewRequest(http.MethodPut, c.Base+"/"+name+"/set", body)
+	req.Header.Add("Content-Type", "application/json")
 
 	if err != nil {
 		return fmt.Errorf("http: %w", err)
@@ -96,8 +102,17 @@ func (c *Client) Down(name string) error {
 
 	if err != nil {
 		return fmt.Errorf("http: %w", err)
-	} else {
-		defer res.Body.Close()
+	}
+	defer res.Body.Close()
+
+	raw, err = io.ReadAll(res.Body)
+
+	if err != nil {
+		return fmt.Errorf("body: %w", err)
+	}
+
+	if res.StatusCode != 200 {
+		return fmt.Errorf("%s", string(raw))
 	}
 
 	return nil

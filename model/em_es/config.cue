@@ -1,5 +1,7 @@
 package em_es
 
+import v2k "github.com/blabtm/v2k/model"
+
 #SolverConfig: {
 	maxIterations:  >0 | *500
 	maxEvaluations: >0 | *500
@@ -20,7 +22,7 @@ package em_es
 	axes!: #AxesSetup
 }
 
-#Config: {
+#Config: v2k.#ServiceConfig & {
 	window: >0 | *3
 	solver: #SolverConfig
 	cams!: {

@@ -14,5 +14,5 @@ include(GoogleTest)
 
 add_subdirectory(extern)
 add_subdirectory(ccd)
-add_subdirectory(em-es)
+add_subdirectory(em_es)
 

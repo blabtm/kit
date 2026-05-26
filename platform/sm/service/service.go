@@ -4,38 +4,36 @@
 package service
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"dario.cat/mergo"
+	"github.com/blabtm/v2k/platform/sm/cue"
 	"sigs.k8s.io/yaml"
 )
 
+var modulePath string
 var configPath string
 var deployPath string
 
 func init() {
+	modulePath = os.Getenv("MODULE_PATH")
 	configPath = os.Getenv("CONFIG_PATH")
-
-	if configPath == "" {
-		configPath = "/etc/v2k/config"
-	}
-
 	deployPath = os.Getenv("DEPLOY_PATH")
-
-	if deployPath == "" {
-		deployPath = "/etc/v2k/deploy"
-	}
 }
 
-// Registry is a global driver storage. Each driver must register itself within the registry
-// (e.g. in the `init` function) so it can be resolved later.
+// Registry is a global driver storage. Each driver must register itself within the
+// registry (e.g. in the init function) so it can be resolved later.
 var Registry = make(map[string]Driver)
 
-// Option is an additional argument to pass when service starts up.
+// Option is an additional argument to pass when the service starts up.
 type Option struct {
 	Key   string
 	Value any
@@ -45,9 +43,27 @@ type Option struct {
 type State string
 
 const (
-	Up      State = "UP"      // Up indicates the service is operational and running.
-	Down    State = "DOWN"    // Down indicates the service is transitioning, not operational or stopped.
-	Partial State = "PARTIAL" // Partial indicates the service is not fully functional.
+	// Stopped indicates that the service was explicitly turned off or not started yet.
+	// For multi-task services, it indicates that no tasks have been spawned yet.
+	Stopped State = "STOPPED"
+
+	// Pending indicates that the service is transitioning between two states.
+	// For multi-task services, it indicates that at least one task is pending.
+	// Finished tasks are considered PENDING while the overall service state is unresolved.
+	Pending State = "PENDING"
+
+	// Running indicates that the service is operational and executing.
+	// For multi-task services, it indicates that all tasks are in an operational state.
+	Running State = "RUNNING"
+
+	// Completed indicates that the oneshot service finished flawlessly.
+	// For multi-task services, it indicates that all tasks completed successfully.
+	Completed State = "COMPLETED"
+
+	// Failed indicates that the oneshot service finished with an error.
+	// For multi-task services, it indicates that all tasks are finished and
+	// at least one failed.
+	Failed State = "FAILED"
 )
 
 // Status provides a detailed report of a service's current operational state.
@@ -57,7 +73,7 @@ type Status struct {
 }
 
 // Driver defines the interface for managing the lifecycle and status of a service
-// within a specific execution environment (e.g., Docker, Flink).
+// within a specific execution environment (e.g., swarm or systemd).
 type Driver interface {
 	// Ps reports the current operational status of the service specified by the Spec.
 	Ps(ctx context.Context, spec *Spec) (*Status, error)
@@ -69,13 +85,33 @@ type Driver interface {
 	Down(ctx context.Context, spec *Spec) error
 }
 
+type Type string
+
+const (
+	Service Type = "service"
+	Oneshot Type = "oneshot"
+)
+
+type Capability string
+
+const (
+	// Live indicates the service's ability to reload configuration at runtime.
+	Live Capability = "live"
+)
+
 // Spec represents the declarative specification for a service.
 type Spec struct {
 	// Driver is a driver name.
 	Driver string `yaml:"driver"`
 
-	// Config holds driver-specific configuration parameters.
-	Config map[string]any `yaml:"config"`
+	// Type is service type.
+	Type Type `yaml:"type"`
+
+	// Capabilities holds service optional functionality.
+	Capabilities map[string]bool `yaml:"capabilities"`
+
+	// Options holds driver-specific configuration parameters.
+	Options any `yaml:"options"`
 
 	// Name is a fully-qualified unique service identifier in dot-notation.
 	// For example, `em-es.sim`.
@@ -109,20 +145,37 @@ func Load(name string) (*Spec, error) {
 	return def, nil
 }
 
-// GetConfigPath returns the absolute path to configuration for a service with the name.
-// It translates the dot-notation service name (e.g., `em-es.sim`)
-// into a directory path under storage root specified by the `CONFIG_PATH` environment variable
-// (e.g., `/etc/v2k/config/em-es/sim`).
-func GetConfigPath(name string) string {
-	return filepath.Join(configPath, strings.ReplaceAll(name, ".", string(filepath.Separator)))
+// GetModelPath returns the absolute path to the model for a service with the name.
+// It translates the dot-notation service name (e.g., `em-es.sim`) into a directory path
+// under storage root specified by the `MODULE_PATH` environment variable
+// (e.g., `/etc/v2k/model/em_es/sim`).
+func GetModelPath(name string) string {
+	return filepath.Join(modulePath,
+		"model", strings.ReplaceAll(name, ".", string(filepath.Separator)))
 }
 
-// GetDeployPath returns the absolute path to deployment artifacts for a service with the name.
-// It translates the dot-notation service name (e.g., `em-es.sim`)
-// into a directory path under storage root specified by the `DEPLOY_PATH` environment variable
+// GetConfigPath returns the absolute path to configuration for a service with the name.
+// It translates the dot-notation service name (e.g., `em_es.sim`) into a directory path
+// under storage root specified by the `CONFIG_PATH` environment variable
+// (e.g., `/etc/v2k/config/em_es/sim`).
+func GetConfigPath(name string) string {
+	return filepath.Join(configPath,
+		strings.ReplaceAll(name, ".", string(filepath.Separator)))
+}
+
+// GetDeployPath returns the absolute path to deployment artifacts for a service with
+// the name. It translates the dot-notation service name (e.g., `em-es.sim`) into a
+// directory path under storage root specified by the `DEPLOY_PATH` environment variable
 // (e.g., `/etc/v2k/deploy/em-es/sim`).
 func GetDeployPath(name string) string {
-	return filepath.Join(deployPath, strings.ReplaceAll(name, ".", string(filepath.Separator)))
+	return filepath.Join(deployPath,
+		strings.ReplaceAll(name, ".", string(filepath.Separator)))
+}
+
+// Config represents the desired service configuration.
+type Config struct {
+	// Active indicates the desired state for the service.
+	Active bool `json:"active"`
 }
 
 // Ls returns the list of all registered services.
@@ -148,13 +201,14 @@ func Ls() ([]string, error) {
 	return res, nil
 }
 
-// GetConfig returns the configurations for the service in YAML.
-func GetConfig(name string) ([]byte, error) {
-	conf, err := os.ReadFile(filepath.Join(
-		GetConfigPath(name),
-		"config.yaml",
-	))
+// Get returns runtime configuration for the service.
+func Get(name string) ([]byte, error) {
+	spec, err := Load(name)
+	if err != nil {
+		return nil, err
+	}
 
+	conf, err := os.ReadFile(filepath.Join(spec.ConfigPath, "config.json"))
 	if err != nil {
 		return nil, fmt.Errorf("open: %w", err)
 	}
@@ -162,12 +216,102 @@ func GetConfig(name string) ([]byte, error) {
 	return conf, nil
 }
 
-// PutConfig stores the configurations for the service in YAML.
-func PutConfig(name string, conf []byte) error {
-	if err := os.WriteFile(filepath.Join(GetConfigPath(name), "config.yaml"), conf, 0666); err != nil {
-		return fmt.Errorf("write: %v", err)
+// Set updates service's configuration and enforces it's operational state.
+func Set(name string, raw []byte) error {
+	spec, err := Load(name)
+
+	if err != nil {
+		return err
+	}
+
+	if len(raw) != 0 {
+		dst := filepath.Join(spec.ConfigPath, "config.json")
+
+		merged, err := merge(dst, raw)
+		if err != nil {
+			slog.Error("merge", "err", err)
+			return err
+		}
+
+		err = cue.Validate(modulePath, filepath.Join(GetModelPath(name), "config.cue"), merged)
+		if err != nil {
+			slog.Error("validate", "err", err)
+			return err
+		}
+
+		if err := os.WriteFile(dst, merged, 0644); err != nil {
+			return err
+		}
+	}
+
+	if err := update(spec); err != nil {
+		return err
 	}
 
 	return nil
 }
 
+func merge(path string, raw []byte) ([]byte, error) {
+	base, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var baseMap map[string]any
+	var overrideMap map[string]any
+
+	baseDecoder := json.NewDecoder(bytes.NewReader(base))
+	baseDecoder.UseNumber()
+	if err := baseDecoder.Decode(&baseMap); err != nil {
+		return nil, err
+	}
+
+	overrideDecoder := json.NewDecoder(bytes.NewReader(raw))
+	overrideDecoder.UseNumber()
+	if err := overrideDecoder.Decode(&overrideMap); err != nil {
+		return nil, err
+	}
+
+	if err := mergo.Merge(&baseMap, overrideMap, mergo.WithOverride); err != nil {
+		return nil, err
+	}
+
+	merged, err := json.MarshalIndent(baseMap, "", "  ")
+	if err != nil {
+		return nil, err
+	}
+
+	return merged, nil
+}
+
+func update(spec *Spec) error {
+	ctx := context.Background()
+
+	raw, err := os.ReadFile(filepath.Join(spec.ConfigPath, "config.json"))
+	if err != nil {
+		return err
+	}
+
+	var conf Config
+	if err := json.Unmarshal(raw, &conf); err != nil {
+		return err
+	}
+
+	status, err := Registry[spec.Driver].Ps(ctx, spec)
+	if err != nil {
+		return err
+	}
+
+	// Underlying engine will handle reconciliation loop.
+	// We only need to deploy or withdraw the job here.
+
+	if status.State != Stopped && !conf.Active {
+		return Registry[spec.Driver].Down(ctx, spec)
+	}
+
+	if status.State == Stopped && conf.Active {
+		return Registry[spec.Driver].Up(ctx, spec)
+	}
+
+	return nil
+}

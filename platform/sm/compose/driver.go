@@ -1,4 +1,4 @@
-package docker
+package compose
 
 import (
 	"context"
@@ -18,7 +18,7 @@ import (
 )
 
 func init() {
-	service.Registry["docker"] = New()
+	service.Registry["compose"] = New()
 }
 
 type Driver struct {
@@ -85,7 +85,7 @@ func (prv *Driver) Ps(ctx context.Context, spec *service.Spec) (*service.Status,
 	}
 
 	if len(sum) == 0 {
-		return &service.Status{State: service.Down}, nil
+		return &service.Status{State: service.Stopped}, nil
 	}
 
 	for _, con := range sum {
@@ -94,11 +94,11 @@ func (prv *Driver) Ps(ctx context.Context, spec *service.Spec) (*service.Status,
 				Project: prj,
 			})
 
-			return &service.Status{State: service.Down}, nil
+			return &service.Status{State: service.Stopped}, nil
 		}
 	}
 
-	return &service.Status{State: service.Up}, nil
+	return &service.Status{State: service.Running}, nil
 }
 
 func (prv *Driver) Up(ctx context.Context, spec *service.Spec, opts ...service.Option) error {

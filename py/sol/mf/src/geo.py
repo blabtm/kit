@@ -25,19 +25,22 @@ l_yoke_corner_h = (194 - 155.2) * 1e-3
 r_yoke_corner_w = 262e-3
 r_yoke_corner_h = (194 - 112.7) * 1e-3
 
-def create_mesh(blob_dir):
+
+def create_mesh(mesh_dir):
     gmsh.initialize()
     model = gmsh.model()
     model.add("Solenoid")
 
     yoke = model.occ.add_rectangle(-yoke_w, 0, 0, yoke_w, yoke_h)
-    
+
     # Cut the coils
-    cut = model.occ.add_rectangle(-759.7e-3, 0, 0, yoke_main_cut_w, yoke_main_cut_h)
+    cut = model.occ.add_rectangle(-759.7e-3, 0, 0,
+                                  yoke_main_cut_w, yoke_main_cut_h)
     yoke = model.occ.cut([(2, yoke)], [(2, cut)])[0][0][1]
-    cut = model.occ.add_rectangle(-176.2e-3, 0, 0, yoke_comp_cut_w, yoke_comp_cut_h)
+    cut = model.occ.add_rectangle(-176.2e-3, 0, 0,
+                                  yoke_comp_cut_w, yoke_comp_cut_h)
     yoke = model.occ.cut([(2, yoke)], [(2, cut)])[0][0][1]
-    
+
     # Cut the left corner
     p1 = model.occ.add_point(-yoke_w, yoke_h, 0)
     p2 = model.occ.add_point(-yoke_w, yoke_h - l_yoke_corner_h, 0)
@@ -50,7 +53,7 @@ def create_mesh(blob_dir):
         ])
     ])
     yoke = model.occ.cut([(2, yoke)], [(2, cut)])[0][0][1]
-    
+
     # Cut the right corner
     p1 = model.occ.add_point(0, yoke_h, 0)
     p2 = model.occ.add_point(-r_yoke_corner_w, yoke_h, 0)
@@ -63,13 +66,18 @@ def create_mesh(blob_dir):
         ])
     ])
     yoke = model.occ.cut([(2, yoke)], [(2, cut)])[0][0][1]
-    
-    nbsn_coil_1 = model.occ.add_rectangle(-487.7e-3, 0, 0, nbsn_coil_w, nbsn_coil_h)
-    nbsn_coil_2 = model.occ.add_rectangle(-749.7e-3, 0, 0, nbsn_coil_w, nbsn_coil_h)
-    nbti_coil_1 = model.occ.add_rectangle(-487.7e-3, (58 - 30) * 1e-3, 0, nbti_coil_w, nbti_coil_h)
-    nbti_coil_2 = model.occ.add_rectangle(-749.7e-3, (58 - 30) * 1e-3, 0, nbti_coil_w, nbti_coil_h)
-    comp_coil = model.occ.add_rectangle(-164.7e-3, 0, 0, comp_coil_w, comp_coil_h)
-    
+
+    nbsn_coil_1 = model.occ.add_rectangle(-487.7e-3,
+                                          0, 0, nbsn_coil_w, nbsn_coil_h)
+    nbsn_coil_2 = model.occ.add_rectangle(-749.7e-3,
+                                          0, 0, nbsn_coil_w, nbsn_coil_h)
+    nbti_coil_1 = model.occ.add_rectangle(-487.7e-3,
+                                          (58 - 30) * 1e-3, 0, nbti_coil_w, nbti_coil_h)
+    nbti_coil_2 = model.occ.add_rectangle(-749.7e-3,
+                                          (58 - 30) * 1e-3, 0, nbti_coil_w, nbti_coil_h)
+    comp_coil = model.occ.add_rectangle(-164.7e-3,
+                                        0, 0, comp_coil_w, comp_coil_h)
+
     model.occ.translate([
         (2, yoke),
         (2, nbsn_coil_1),
@@ -78,7 +86,7 @@ def create_mesh(blob_dir):
         (2, nbti_coil_2),
         (2, comp_coil),
     ], 0, yoke_oy, 0)
-    
+
     air = model.occ.add_rectangle(-1000e-3, 0, 0, (1000 + 200) * 1e-3, 240e-3)
     cut = model.occ.copy([
         (2, yoke),
@@ -89,7 +97,7 @@ def create_mesh(blob_dir):
         (2, comp_coil),
     ])
     air = model.occ.cut([(2, air)], cut)[0][0][1]
-    
+
     objs = [
         (2, air),
         (2, yoke),
@@ -99,15 +107,15 @@ def create_mesh(blob_dir):
         (2, nbti_coil_2),
         (2, comp_coil),
     ]
-    
+
     tags, tag_map = model.occ.fragment(objs, [])
     model.occ.synchronize()
-    
+
     mapping = np.zeros((len(tags) + 1), dtype=int)
-    
+
     for i in range(len(tags)):
         mapping[objs[i][1]] = tags[i][1]
-    
+
     model.add_physical_group(dim=2, tags=[mapping[air]], tag=1)
     model.add_physical_group(dim=2, tags=[mapping[yoke]], tag=2)
     model.add_physical_group(dim=2,
@@ -117,16 +125,16 @@ def create_mesh(blob_dir):
                              tags=[mapping[nbti_coil_1], mapping[nbti_coil_2]],
                              tag=4)
     model.add_physical_group(dim=2, tags=[mapping[comp_coil]], tag=5)
-    
+
     yoke_bnd = []
-    
+
     for dim, tag in model.get_boundary([(2, mapping[yoke])]):
         yoke_bnd.append(tag)
-    
+
     model.add_physical_group(dim=1, tags=yoke_bnd, tag=6)
-    
+
     coils_bnd = []
-    
+
     for dim, tag in model.get_boundary([
         (2, mapping[nbsn_coil_1]),
         (2, mapping[nbsn_coil_2]),
@@ -135,43 +143,44 @@ def create_mesh(blob_dir):
         (2, mapping[comp_coil])
     ]):
         coils_bnd.append(tag)
-    
-    
+
     model.add_physical_group(dim=1, tags=coils_bnd, tag=7)
-    
-    bnd = model.get_boundary([(2, mapping[air])], oriented=False, recursive=False)
+
+    bnd = model.get_boundary(
+        [(2, mapping[air])], oriented=False, recursive=False)
     eps = 1e-5
     axis = []
-    
+
     for dim, tag in bnd:
         if dim != 1:
             continue
-        
+
         xmin, ymin, zmin, xmax, ymax, zmax = model.get_bounding_box(dim, tag)
-    
+
         if abs(ymin) < eps and abs(ymax) < eps:
             axis.append(tag)
-    
+
     model.add_physical_group(dim=1, tags=axis, tag=8)
-    
+
     model.mesh.field.add("Distance", 1)
     model.mesh.field.set_numbers(1, "CurvesList", axis)
     model.mesh.field.set_number(1, "Sampling", 100)
-    
+
     gmsh.model.mesh.field.add("Threshold", 2)
     gmsh.model.mesh.field.set_number(2, "InField", 1)
     gmsh.model.mesh.field.set_number(2, "SizeMin", 5e-3)
     gmsh.model.mesh.field.set_number(2, "SizeMax", 100e-3)
     gmsh.model.mesh.field.set_number(2, "DistMin", 30e-3)
     gmsh.model.mesh.field.set_number(2, "DistMax", 1000e-3)
-    
+
     model.mesh.field.set_as_background_mesh(2)
-    
+
     model.mesh.generate(dim=2)
-    gmsh.write(f"{blob_dir}/sol.mf/mesh.msh")
+    gmsh.write(f"{mesh_dir}/mesh.msh")
     gmsh.finalize()
 
-    data = gmshio.read_from_msh(f"{blob_dir}/sol.mf/mesh.msh", MPI.COMM_WORLD, gdim=2)
+    data = gmshio.read_from_msh(
+        f"{mesh_dir}/mesh.msh", MPI.COMM_WORLD, gdim=2)
     plotter = pyvista.Plotter(off_screen=True)
     grid = pyvista.UnstructuredGrid(*plot.vtk_mesh(data.mesh))
 
@@ -185,19 +194,22 @@ def create_mesh(blob_dir):
                      )
 
     plotter.add_mesh(
-        pyvista.UnstructuredGrid(*plot.vtk_mesh(data.mesh, 1, data.facet_tags.find(6))),
+        pyvista.UnstructuredGrid(
+            *plot.vtk_mesh(data.mesh, 1, data.facet_tags.find(6))),
         color="black",
         line_width=3
     )
 
     plotter.add_mesh(
-        pyvista.UnstructuredGrid(*plot.vtk_mesh(data.mesh, 1, data.facet_tags.find(7))),
+        pyvista.UnstructuredGrid(
+            *plot.vtk_mesh(data.mesh, 1, data.facet_tags.find(7))),
         color="black",
         line_width=2
     )
 
     plotter.add_mesh(
-        pyvista.UnstructuredGrid(*plot.vtk_mesh(data.mesh, 1, data.facet_tags.find(8))),
+        pyvista.UnstructuredGrid(
+            *plot.vtk_mesh(data.mesh, 1, data.facet_tags.find(8))),
         color="black",
         line_width=5
     )
@@ -205,7 +217,8 @@ def create_mesh(blob_dir):
     plotter.camera_position = "xy"
     plotter.reset_camera(bounds=[-1, 0.2, 0, 0.2, 0, 0])
     plotter.camera.zoom("tight")
-    plotter.screenshot(f"{blob_dir}/sol.mf/mesh.png", transparent_background=True)
+    plotter.screenshot(f"{mesh_dir}/mesh.png",
+                       transparent_background=True)
 
     plotter = pyvista.Plotter(off_screen=True)
 
@@ -261,7 +274,4 @@ def create_mesh(blob_dir):
     )
 
     plotter.camera.zoom(1.3)
-    plotter.screenshot(
-        f"{blob_dir}/sol.mf/3d.png",
-        transparent_background=True
-    )
+    plotter.screenshot(f"{mesh_dir}/3d.png", transparent_background=True)
