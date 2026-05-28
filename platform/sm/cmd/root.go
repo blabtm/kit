@@ -12,15 +12,26 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
+var Tag string
+
 var config string
 var remoteHost string
 var remotePort int
+var message string
 
 var Root = &cobra.Command{
 	Use:   "sm",
-	Short: "Service manager for the VEPP-2000 Collider platform.",
+	Short: "Service manager for the VEPP-2000 collider platform.",
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		return initConfig(cmd)
+	},
+}
+
+var Version = &cobra.Command{
+	Use:   "version",
+	Short: "Print version.",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Printf("sm version %s\n", Tag)
 	},
 }
 
@@ -32,9 +43,9 @@ var Ls = &cobra.Command{
 			viper.GetString("remote.host"),
 			viper.GetInt("remote.port"),
 		).Ls()
-
 		if err != nil {
-			return err
+			fmt.Printf("error: %v\n", err)
+			return nil
 		}
 
 		for _, s := range services {
@@ -48,40 +59,51 @@ var Ls = &cobra.Command{
 var Ps = &cobra.Command{
 	Use:   "ps [name]",
 	Short: "Get the current operational status of the service.",
-	Args:  cobra.ExactArgs(1),
+	Args:  cobra.RangeArgs(1, 2),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		id := ""
+
+		if len(args) == 2 {
+			id = args[1]
+		}
+
 		status, err := v1.NewClient(
 			viper.GetString("remote.host"),
 			viper.GetInt("remote.port"),
-		).Ps(args[0])
-
+		).Ps(args[0], id)
 		if err != nil {
-			return err
+			fmt.Printf("error: %v\n", err)
+			return nil
 		}
 
 		fmt.Printf("%s:\n", args[0])
-		fmt.Printf("\tState: %s\n", status.State)
+		fmt.Printf("  State: %s\n", status.State)
 
 		return nil
 	},
 }
 
 var Get = &cobra.Command{
-	Use:   "get [name]",
+	Use:   "get [name] {id}",
 	Short: "Get runtime configuration of the service.",
-	Args:  cobra.ExactArgs(1),
+	Args:  cobra.RangeArgs(1, 2),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		id := ""
+
+		if len(args) == 2 {
+			id = args[1]
+		}
+
 		raw, err := v1.NewClient(
 			viper.GetString("remote.host"),
 			viper.GetInt("remote.port"),
-		).Get(args[0])
-
+		).Get(args[0], id)
 		if err != nil {
-			return err
+			fmt.Printf("error: %v\n", err)
+			return nil
 		}
 
 		yml, err := yaml.JSONToYAML(raw)
-
 		if err != nil {
 			return err
 		}
@@ -98,7 +120,6 @@ var Set = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		raw, err := io.ReadAll(os.Stdin)
-
 		if err != nil {
 			return err
 		}
@@ -107,9 +128,9 @@ var Set = &cobra.Command{
 			viper.GetString("remote.host"),
 			viper.GetInt("remote.port"),
 		).Set(args[0], raw)
-
 		if err != nil {
-			return err
+			fmt.Printf("error: %v\n", err)
+			return nil
 		}
 
 		fmt.Println("OK")
@@ -118,15 +139,44 @@ var Set = &cobra.Command{
 	},
 }
 
+var Run = &cobra.Command{
+	Use:   "run [name]",
+	Short: "Create new oneshot instance.",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		raw, err := io.ReadAll(os.Stdin)
+		if err != nil {
+			return err
+		}
+
+		id, err := v1.NewClient(
+			viper.GetString("remote.host"),
+			viper.GetInt("remote.port"),
+		).Run(args[0], raw, message)
+		if err != nil {
+			fmt.Printf("error: %v\n", err)
+			return nil
+		}
+
+		fmt.Printf("OK: %s\n", id)
+
+		return nil
+	},
+}
+
 func init() {
+	Root.AddCommand(Version)
 	Root.AddCommand(Ls)
 	Root.AddCommand(Ps)
 	Root.AddCommand(Get)
 	Root.AddCommand(Set)
+	Root.AddCommand(Run)
 
 	Root.PersistentFlags().StringVarP(&config, "config", "c", "", "configuration file (default locations are: $HOME/.sm/config.yaml, /etc/sm/config.yaml)")
 	Root.PersistentFlags().StringVar(&remoteHost, "remote.host", "", "remote host")
 	Root.PersistentFlags().IntVar(&remotePort, "remote.port", 0, "remote port")
+
+	Run.Flags().StringVarP(&message, "message", "m", "", "commit message")
 }
 
 func initConfig(cmd *cobra.Command) error {

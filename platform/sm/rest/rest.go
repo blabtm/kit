@@ -31,16 +31,18 @@ func main() {
 	mux := http.NewServeMux()
 
 	// List all registered services.
-	mux.HandleFunc("GET /v1", v1.Ls)
+	mux.HandleFunc("GET /api/ls", v1.Ls)
 
-	// Get the current operational status of the service (UP or DOWN).
-	mux.HandleFunc("GET /v1/{name}/ps", v1.Ps)
+	// Get the current operational status of the service.
+	mux.HandleFunc("GET /api/{name}/ps", v1.Ps)
 
 	// Get the runtime (desired) configuration of the service.
-	mux.HandleFunc("GET /v1/{name}/get", v1.Get)
+	mux.HandleFunc("GET /api/{name}", v1.Get)
 
-	// Set the runtime (desired) configuration of the service and enforce it.
-	mux.HandleFunc("PUT /v1/{name}/set", v1.Set)
+	// Set the runtime (desired) configuration of the service.
+	mux.HandleFunc("PUT /api/{name}", v1.Set)
+
+	mux.HandleFunc("PUT /api/{name}/run", v1.Run)
 
 	c := cors.New(cors.Options{
 		AllowedOrigins: allowedOrigins,

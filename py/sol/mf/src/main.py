@@ -18,29 +18,35 @@ from dolfinx import geometry
 import pyvista
 import matplotlib.pyplot as plt
 
+iid = os.getenv("IID")
 config_dir = os.getenv("CONFIG_DIR")
 blob_dir = os.getenv("BLOB_DIR")
 
-with open(f"{config_dir}/sol/mf/config.json", "r") as file:
+print(f"IID: {iid}")
+
+with open(f"{config_dir}/sol/mf/{iid}/config.json", "r") as file:
     conf = json.load(file)
     yoke = conf["yoke"]
     coils = conf["coils"]
 
-Path(f"{blob_dir}/sol/mf").mkdir(parents=True, exist_ok=True)
+Path(f"{blob_dir}/sol/mf/{iid}").mkdir(parents=True, exist_ok=True)
 
-if not Path(f"{blob_dir}/sol/mf/mesh.msh").is_file():
-    geo.create_mesh(f"{blob_dir}/sol/mf")
+if not Path(f"{blob_dir}/sol/mf/{iid}/mesh.msh").is_file():
+    geo.create_mesh(f"{blob_dir}/sol/mf/{iid}")
 
-data = gmshio.read_from_msh(f"{blob_dir}/sol/mf/mesh.msh", MPI.COMM_WORLD, gdim=2)
+data = gmshio.read_from_msh(
+    f"{blob_dir}/sol/mf/{iid}/mesh.msh", MPI.COMM_WORLD, gdim=2)
 
 V = fem.functionspace(data.mesh, ("CG", 1))
 Q = fem.functionspace(data.mesh, ("DG", 0))
 x = ufl.SpatialCoordinate(data.mesh)
 r = x[1]
 
-axis = mesh.locate_entities_boundary(data.mesh, dim=1, marker=lambda x: np.isclose(x[1], 0.0))
+axis = mesh.locate_entities_boundary(
+    data.mesh, dim=1, marker=lambda x: np.isclose(x[1], 0.0))
 remote = mesh.locate_entities_boundary(data.mesh, dim=1, marker=lambda x: (
-    np.isclose(x[1], 240e-3) | np.isclose(x[0], -1000e-3) | np.isclose(x[0], 200e-3)
+    np.isclose(x[1], 240e-3) | np.isclose(x[0], -
+                                          1000e-3) | np.isclose(x[0], 200e-3)
 ))
 
 axis_dofs = fem.locate_dofs_topological(V, entity_dim=1, entities=axis)
@@ -93,16 +99,19 @@ problem = LinearProblem(
     L,
     bcs=bcs,
     petsc_options_prefix="solenoid_",
-    petsc_options={"ksp_type": "preonly", "pc_type": "lu", "ksp_error_if_not_converged": True},
+    petsc_options={"ksp_type": "preonly", "pc_type": "lu",
+                   "ksp_error_if_not_converged": True},
 )
 
 uh = problem.solve()
 
 Bz = fem.Function(Q)
-Bz.interpolate(fem.Expression((1.0 / r) * ufl.grad(uh)[1], Q.element.interpolation_points))
+Bz.interpolate(fem.Expression((1.0 / r) * ufl.grad(uh)
+               [1], Q.element.interpolation_points))
 
 Br = fem.Function(Q)
-Br.interpolate(fem.Expression(-(1.0 / r) * ufl.grad(uh)[0], Q.element.interpolation_points))
+Br.interpolate(fem.Expression(-(1.0 / r) * ufl.grad(uh)
+               [0], Q.element.interpolation_points))
 
 dz = ufl.Measure("ds", domain=data.mesh, subdomain_data=data.facet_tags)
 I = fem.assemble_scalar(fem.form(Bz * dz(8)))
@@ -123,13 +132,15 @@ plotter.add_mesh(
 )
 
 plotter.add_mesh(
-    pyvista.UnstructuredGrid(*plot.vtk_mesh(data.mesh, 1, data.facet_tags.find(6))),
+    pyvista.UnstructuredGrid(
+        *plot.vtk_mesh(data.mesh, 1, data.facet_tags.find(6))),
     color="black",
     line_width=3
 )
 
 plotter.add_mesh(
-    pyvista.UnstructuredGrid(*plot.vtk_mesh(data.mesh, 1, data.facet_tags.find(7))),
+    pyvista.UnstructuredGrid(
+        *plot.vtk_mesh(data.mesh, 1, data.facet_tags.find(7))),
     color="black",
     line_width=2
 )
@@ -137,7 +148,7 @@ plotter.add_mesh(
 plotter.camera_position = "xy"
 plotter.reset_camera(bounds=[-1, 0.2, 0, 0.2, 0, 0])
 plotter.camera.zoom("tight")
-plotter.screenshot(f"{blob_dir}/sol/mf/u.png")
+plotter.screenshot(f"{blob_dir}/sol/mf/{iid}/u.png")
 
 plotter = pyvista.Plotter(off_screen=True)
 
@@ -169,7 +180,7 @@ plotter.add_mesh(
 plotter.camera_position = "xy"
 plotter.reset_camera(bounds=[-1, 0.2, 0, 0.2, 0, 0])
 plotter.camera.zoom("tight")
-plotter.screenshot(f"{blob_dir}/sol/mf/b.png")
+plotter.screenshot(f"{blob_dir}/sol/mf/{iid}/b.png")
 
 eps = 1e-6
 nz = 400
@@ -181,7 +192,8 @@ points[2, :] = 0.0
 
 tree = geometry.bb_tree(data.mesh, 2)
 cell_candidates = geometry.compute_collisions_points(tree, points.T)
-colliding_cells = geometry.compute_colliding_cells(data.mesh, cell_candidates, points.T)
+colliding_cells = geometry.compute_colliding_cells(
+    data.mesh, cell_candidates, points.T)
 
 points_on_proc = []
 cells = []
@@ -205,23 +217,24 @@ plt.xlabel("z [m]")
 plt.ylabel("Bz [T]")
 plt.grid(True)
 plt.tight_layout()
-plt.savefig(f"{blob_dir}/sol/mf/btz.png")
+plt.savefig(f"{blob_dir}/sol/mf/{iid}/btz.png")
 
 R = fem.petsc.assemble_vector(fem.form(
     (1.0 / (mu * r)) * ufl.dot(ufl.grad(uh), ufl.grad(v)) * ufl.dx
     - J * v * ufl.dx
 ))
 
-fem.petsc.apply_lifting(R, [fem.form(a)], [bcs], x0=[uh.x.petsc_vec], alpha=-1.0)
+fem.petsc.apply_lifting(R, [fem.form(a)], [bcs], x0=[
+                        uh.x.petsc_vec], alpha=-1.0)
 R.ghostUpdate(addv=PETSc.InsertMode.ADD, mode=PETSc.ScatterMode.REVERSE)
 fem.petsc.set_bc(R, bcs, uh.x.petsc_vec, -1.0)
 
 print("Weak Residual Norm: ", R.norm())
 
-W1 = fem.assemble_scalar(fem.form(2 * ufl.pi * r * (1.0 / (2 * mu) * (Br**2 + Bz**2)) * ufl.dx))
+W1 = fem.assemble_scalar(
+    fem.form(2 * ufl.pi * r * (1.0 / (2 * mu) * (Br**2 + Bz**2)) * ufl.dx))
 print("W1: ", W1)
 
 W2 = fem.assemble_scalar(fem.form(ufl.pi * J * uh * ufl.dx))
 print("W2: ", W2)
 print(abs(W2 - W1))
-

@@ -1,0 +1,4 @@
+driver: swarm
+type: service
+capabilities:
+  live: true

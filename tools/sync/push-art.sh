@@ -24,5 +24,6 @@ find . | grep deploy/service.cue | while read file; do
   find "deploy/$svc/art" -type f | while read art; do
     envsubst < "$art" > "$art.tmp"
     mv "$art.tmp" "$art"
+    sed -i -E 's/\%\{([^}]*)\}/${\1}/g' "$art"
   done
 done

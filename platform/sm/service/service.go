@@ -13,20 +13,22 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"dario.cat/mergo"
 	"github.com/blabtm/v2k/platform/sm/cue"
+	"github.com/blabtm/v2k/platform/sm/service/iid"
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing/object"
 	"sigs.k8s.io/yaml"
 )
 
-var modulePath string
+var repoPath string
 var configPath string
-var deployPath string
 
 func init() {
-	modulePath = os.Getenv("MODULE_PATH")
-	configPath = os.Getenv("CONFIG_PATH")
-	deployPath = os.Getenv("DEPLOY_PATH")
+	repoPath = os.Getenv("REPO_PATH")
+	configPath = filepath.Join(repoPath, "config")
 }
 
 // Registry is a global driver storage. Each driver must register itself within the
@@ -113,9 +115,16 @@ type Spec struct {
 	// Options holds driver-specific configuration parameters.
 	Options any `yaml:"options"`
 
+	// IID is a unique oneshot invocation identifier.
+	// It's ignored for non-oneshot services.
+	IID *iid.IID
+
 	// Name is a fully-qualified unique service identifier in dot-notation.
-	// For example, `em-es.sim`.
+	// For example, `em_es.sim`.
 	Name string
+
+	// ModelPath is an absolute path to service's models location.
+	ModelPath string
 
 	// ConfigPath is an absolute path to service's configurations location.
 	ConfigPath string
@@ -125,24 +134,41 @@ type Spec struct {
 }
 
 // Load reads and unmarshals a service specification from a YAML file.
-func Load(name string) (*Spec, error) {
-	def := &Spec{
+func Load(name string, id string) (*Spec, error) {
+	spec := &Spec{
 		Name:       name,
+		ModelPath:  GetModelPath(name),
 		ConfigPath: GetConfigPath(name),
 		DeployPath: GetDeployPath(name),
 	}
 
-	body, err := os.ReadFile(filepath.Join(def.DeployPath, "service.yaml"))
-
+	body, err := os.ReadFile(filepath.Join(spec.DeployPath, "service.yaml"))
 	if err != nil {
 		return nil, fmt.Errorf("spec: %w", err)
 	}
 
-	if err := yaml.Unmarshal(body, def); err != nil {
+	if err := yaml.Unmarshal(body, spec); err != nil {
 		return nil, fmt.Errorf("spec: %w", err)
 	}
 
-	return def, nil
+	if id != "" {
+		spec.IID = iid.Parse(name, id)
+		spec.ConfigPath = filepath.Join(spec.ConfigPath, spec.IID.Short())
+
+		if _, err := os.Stat(spec.ConfigPath); os.IsNotExist(err) {
+			return nil, fmt.Errorf("no such invocation")
+		}
+	}
+
+	return spec, nil
+}
+
+func (s *Spec) String() string {
+	if s.IID != nil {
+		return s.IID.Full()
+	}
+
+	return strings.ReplaceAll(s.Name, ".", "_")
 }
 
 // GetModelPath returns the absolute path to the model for a service with the name.
@@ -150,7 +176,7 @@ func Load(name string) (*Spec, error) {
 // under storage root specified by the `MODULE_PATH` environment variable
 // (e.g., `/etc/v2k/model/em_es/sim`).
 func GetModelPath(name string) string {
-	return filepath.Join(modulePath,
+	return filepath.Join(repoPath,
 		"model", strings.ReplaceAll(name, ".", string(filepath.Separator)))
 }
 
@@ -159,8 +185,8 @@ func GetModelPath(name string) string {
 // under storage root specified by the `CONFIG_PATH` environment variable
 // (e.g., `/etc/v2k/config/em_es/sim`).
 func GetConfigPath(name string) string {
-	return filepath.Join(configPath,
-		strings.ReplaceAll(name, ".", string(filepath.Separator)))
+	return filepath.Join(repoPath,
+		"config", strings.ReplaceAll(name, ".", string(filepath.Separator)))
 }
 
 // GetDeployPath returns the absolute path to deployment artifacts for a service with
@@ -168,8 +194,8 @@ func GetConfigPath(name string) string {
 // directory path under storage root specified by the `DEPLOY_PATH` environment variable
 // (e.g., `/etc/v2k/deploy/em-es/sim`).
 func GetDeployPath(name string) string {
-	return filepath.Join(deployPath,
-		strings.ReplaceAll(name, ".", string(filepath.Separator)))
+	return filepath.Join(repoPath,
+		"deploy", strings.ReplaceAll(name, ".", string(filepath.Separator)))
 }
 
 // Config represents the desired service configuration.
@@ -180,14 +206,14 @@ type Config struct {
 
 // Ls returns the list of all registered services.
 func Ls() ([]string, error) {
+	dir := filepath.Join(repoPath, "deploy")
 	res := make([]string, 0)
 
-	err := filepath.WalkDir(deployPath, func(path string, d fs.DirEntry, err error) error {
+	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if d.Type().IsRegular() && d.Name() == "service.yaml" {
-			path, _ = strings.CutPrefix(path, deployPath+"/")
+			path, _ = strings.CutPrefix(path, dir+"/")
 			path, _ = strings.CutSuffix(path, "/service.yaml")
 			path = strings.ReplaceAll(path, string(filepath.Separator), ".")
-
 			res = append(res, path)
 		}
 
@@ -202,12 +228,7 @@ func Ls() ([]string, error) {
 }
 
 // Get returns runtime configuration for the service.
-func Get(name string) ([]byte, error) {
-	spec, err := Load(name)
-	if err != nil {
-		return nil, err
-	}
-
+func Get(spec *Spec) ([]byte, error) {
 	conf, err := os.ReadFile(filepath.Join(spec.ConfigPath, "config.json"))
 	if err != nil {
 		return nil, fmt.Errorf("open: %w", err)
@@ -217,66 +238,144 @@ func Get(name string) ([]byte, error) {
 }
 
 // Set updates service's configuration and enforces it's operational state.
-func Set(name string, raw []byte) error {
-	spec, err := Load(name)
+func Set(spec *Spec, raw []byte) error {
+	if spec.Type == Oneshot && spec.IID != nil {
+		return fmt.Errorf("cannot update invocation configuration")
+	}
 
+	path := filepath.Join(spec.ConfigPath, "config.json")
+	dst, err := os.ReadFile(path)
 	if err != nil {
+		slog.Error("read configuration", "err", err)
 		return err
 	}
 
-	if len(raw) != 0 {
-		dst := filepath.Join(spec.ConfigPath, "config.json")
+	changed := false
 
-		merged, err := merge(dst, raw)
+	if len(raw) != 0 {
+		dst, err = merge(dst, raw)
 		if err != nil {
 			slog.Error("merge", "err", err)
 			return err
 		}
 
-		err = cue.Validate(modulePath, filepath.Join(GetModelPath(name), "config.cue"), merged)
-		if err != nil {
-			slog.Error("validate", "err", err)
+		changed = true
+	}
+
+	err = cue.Validate(repoPath, filepath.Join(spec.ModelPath, "config.cue"), dst)
+	if err != nil {
+		slog.Error("validate", "err", err)
+		return err
+	}
+
+	if changed {
+		if err := os.WriteFile(path, dst, 0644); err != nil {
 			return err
 		}
 
-		if err := os.WriteFile(dst, merged, 0644); err != nil {
-			return err
+		if err := commit(path, ""); err != nil {
+			slog.Error("commit", "err", err)
 		}
 	}
 
-	if err := update(spec); err != nil {
-		return err
+	if spec.Type != Oneshot {
+		if err := update(spec); err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
 
-func merge(path string, raw []byte) ([]byte, error) {
-	base, err := os.ReadFile(path)
+func Run(spec *Spec, raw []byte, msg string) (*Spec, error) {
+	if spec.Type != Oneshot {
+		return nil, fmt.Errorf("cannot fork from non-oneshot service")
+	}
+
+	if spec.IID != nil {
+		return nil, fmt.Errorf("cannot fork from invocation")
+	}
+
+	id := iid.New(spec.Name)
+
+	dst, err := os.ReadFile(filepath.Join(spec.ConfigPath, "config.json"))
 	if err != nil {
+		slog.Error("read configuration", "err", err)
 		return nil, err
 	}
 
-	var baseMap map[string]any
-	var overrideMap map[string]any
-
-	baseDecoder := json.NewDecoder(bytes.NewReader(base))
-	baseDecoder.UseNumber()
-	if err := baseDecoder.Decode(&baseMap); err != nil {
+	var conf Config
+	if err := json.Unmarshal(dst, &conf); err != nil {
 		return nil, err
 	}
 
-	overrideDecoder := json.NewDecoder(bytes.NewReader(raw))
-	overrideDecoder.UseNumber()
-	if err := overrideDecoder.Decode(&overrideMap); err != nil {
+	if !conf.Active {
+		return nil, fmt.Errorf("cannot fork from inactive service")
+	}
+
+	if len(raw) != 0 {
+		dst, err = merge(dst, raw)
+		if err != nil {
+			slog.Error("merge", "err", err)
+			return nil, err
+		}
+	}
+
+	err = cue.Validate(repoPath, filepath.Join(spec.ModelPath, "config.cue"), dst)
+	if err != nil {
+		slog.Error("validate", "err", err)
 		return nil, err
 	}
 
-	if err := mergo.Merge(&baseMap, overrideMap, mergo.WithOverride); err != nil {
+	dir := filepath.Join(spec.ConfigPath, id.Short())
+	if err := os.Mkdir(dir, 0755); err != nil {
 		return nil, err
 	}
 
-	merged, err := json.MarshalIndent(baseMap, "", "  ")
+	if err := os.WriteFile(filepath.Join(dir, "config.json"), dst, 0444); err != nil {
+		return nil, err
+	}
+
+	if err := os.Chmod(dir, 0555); err != nil {
+		return nil, err
+	}
+
+	if err := commit(dir, msg); err != nil {
+		slog.Error("commit", "err", err)
+	}
+
+	newSpec := *spec
+	newSpec.IID = id
+	newSpec.ConfigPath = dir
+
+	if err := update(&newSpec); err != nil {
+		return nil, err
+	}
+
+	return &newSpec, nil
+}
+
+func merge(dst, src []byte) ([]byte, error) {
+	var dstMap map[string]any
+	var srcMap map[string]any
+
+	dstDecoder := json.NewDecoder(bytes.NewReader(dst))
+	dstDecoder.UseNumber()
+	if err := dstDecoder.Decode(&dstMap); err != nil {
+		return nil, err
+	}
+
+	srcDecoder := json.NewDecoder(bytes.NewReader(src))
+	srcDecoder.UseNumber()
+	if err := srcDecoder.Decode(&srcMap); err != nil {
+		return nil, err
+	}
+
+	if err := mergo.Merge(&dstMap, srcMap, mergo.WithOverride); err != nil {
+		return nil, err
+	}
+
+	merged, err := json.MarshalIndent(dstMap, "", "  ")
 	if err != nil {
 		return nil, err
 	}
@@ -311,6 +410,43 @@ func update(spec *Spec) error {
 
 	if status.State == Stopped && conf.Active {
 		return Registry[spec.Driver].Up(ctx, spec)
+	}
+
+	// TODO: reload or notify service
+
+	return nil
+}
+
+func commit(path, msg string) error {
+	if msg == "" {
+		msg = "configuration update"
+	}
+
+	repo, err := git.PlainOpen(configPath)
+	if err != nil {
+		return err
+	}
+
+	wt, err := repo.Worktree()
+	if err != nil {
+		return err
+	}
+
+	relPath, _ := strings.CutPrefix(path, configPath+"/")
+	if _, err := wt.Add(relPath); err != nil {
+		return err
+	}
+
+	_, err = wt.Commit(fmt.Sprintf("sm: %s", msg), &git.CommitOptions{
+		Author: &object.Signature{
+			Name:  "Service Manager",
+			Email: "support@blabtm.org",
+			When:  time.Now(),
+		},
+	})
+
+	if err != nil {
+		return err
 	}
 
 	return nil

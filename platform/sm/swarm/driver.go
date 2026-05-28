@@ -19,7 +19,8 @@ func init() {
 
 type Driver struct {
 	Swarm
-	mux map[string]*sync.Mutex
+	gmux sync.Mutex
+	smux map[string]*sync.Mutex
 }
 
 func New() *Driver {
@@ -35,16 +36,19 @@ func New() *Driver {
 
 	return &Driver{
 		Swarm: Swarm{cli},
-		mux:   make(map[string]*sync.Mutex),
+		smux:  make(map[string]*sync.Mutex),
 	}
 }
 
-func (prv *Driver) getLock(name string) *sync.Mutex {
-	mux, ok := prv.mux[name]
+func (drv *Driver) getLock(name string) *sync.Mutex {
+	drv.gmux.Lock()
+	defer drv.gmux.Unlock()
+
+	mux, ok := drv.smux[name]
 
 	if !ok {
 		mux = &sync.Mutex{}
-		prv.mux[name] = mux
+		drv.smux[name] = mux
 	}
 
 	return mux
@@ -55,8 +59,7 @@ func (drv *Driver) Ps(ctx context.Context, spec *service.Spec) (*service.Status,
 	mux.Lock()
 	defer mux.Unlock()
 
-	name := strings.ReplaceAll(spec.Name, ".", "_")
-	state, err := drv.Swarm.Ps(ctx, name)
+	state, err := drv.Swarm.Ps(ctx, spec.String())
 
 	if err != nil {
 		return nil, err
@@ -70,15 +73,18 @@ func (drv *Driver) Up(ctx context.Context, spec *service.Spec, opts ...service.O
 	mux.Lock()
 	defer mux.Unlock()
 
-	name := strings.ReplaceAll(spec.Name, ".", "_")
 	path := filepath.Join(spec.DeployPath, "art", "compose.yaml")
 	env := make([]string, 0, len(opts))
 
 	for _, opt := range opts {
-		env = append(env, fmt.Sprintf("%s:%v", strings.ToUpper(opt.Key), opt.Value))
+		env = append(env, fmt.Sprintf("%s=%v", strings.ToUpper(opt.Key), opt.Value))
 	}
 
-	return drv.Swarm.Deploy(name, path, env)
+	if spec.Type == service.Oneshot {
+		env = append(env, fmt.Sprintf("IID=%s", spec.IID.Short()))
+	}
+
+	return drv.Swarm.Deploy(spec.String(), path, env)
 }
 
 func (drv *Driver) Down(ctx context.Context, spec *service.Spec) error {
@@ -86,7 +92,5 @@ func (drv *Driver) Down(ctx context.Context, spec *service.Spec) error {
 	mux.Lock()
 	defer mux.Unlock()
 
-	name := strings.ReplaceAll(spec.Name, ".", "_")
-
-	return drv.Swarm.Rm(name)
+	return drv.Swarm.Rm(spec.String())
 }
