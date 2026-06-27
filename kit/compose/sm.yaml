@@ -1,0 +1,18 @@
+networks:
+  v2k:
+    external: true
+
+services:
+  sm:
+    image: ghcr.io/blabtm/v2k.sm:latest
+    ports:
+      - target: 80
+        published: $SM_PORT
+        mode: ingress
+    environment:
+      REPO_PATH: /etc/v2k
+    volumes:
+      - $REPO_PATH:/etc/v2k
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - v2k

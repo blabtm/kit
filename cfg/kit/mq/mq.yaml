@@ -1,0 +1,8 @@
+kit:
+  service:
+    mq:
+      enable: true
+      version: "1.0.0"
+      deployment:
+        node:
+          - "master"

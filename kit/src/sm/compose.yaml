@@ -1,0 +1,32 @@
+networks:
+  v2k:
+    external: true
+
+services:
+  sm:
+    build: .
+    command: go run ./rest
+    ports:
+      - target: 80
+        published: $SM_PORT
+        mode: ingress
+    environment:
+      CORS_ALLOWED_ORIGINS: http://localhost:5173
+      REPO_PATH: /etc/v2k
+    volumes:
+      - $REPO_PATH:/etc/v2k
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - v2k
+    develop:
+      watch:
+        - action: restart
+          path: .
+          ignore:
+            - cmd/
+            - docs/
+            - ui/
+        - action: rebuild
+          path: go.mod
+        - action: rebuild
+          path: go.sum

@@ -1,0 +1,57 @@
+networks:
+  v2k:
+    external: true
+
+secrets:
+  v2k-redpanda:
+    external: true
+  v2k-redpanda-console:
+    external: true
+
+services:
+  rp:
+    image: docker.redpanda.com/redpandadata/redpanda:v25.3.2
+    ports:
+      - target: 9090 # localhost
+        published: $RP_LOCAL_PORT
+        mode: host
+      - target: 9092 # lan
+        published: $RP_LAN_PORT
+        mode: host
+      - target: 9080 # schema registry
+        published: $RP_SR_PORT
+        mode: ingress
+      - target: 9644 # admin
+        published: 9644
+        mode: ingress
+    command:
+      - redpanda
+      - start
+      - --kafka-addr local://0.0.0.0:9090,docker://0.0.0.0:$RP_DOCKER_PORT,lan://0.0.0.0:9092
+      - --advertise-kafka-addr local://localhost:$RP_LOCAL_PORT,docker://rp:$RP_DOCKER_PORT,lan://$RP_HOST:$RP_LAN_PORT
+      - --schema-registry-addr registry://0.0.0.0:9080
+      - --rpc-addr docker://0.0.0.0:33145
+      - --advertise-rpc-addr docker://kafka:33145
+    secrets:
+      - source: v2k-redpanda
+        target: /etc/redpanda/.bootstrap.yaml
+    environment:
+      RP_BOOTSTRAP_PASSWORD: $RP_PASS
+    networks:
+      - v2k
+
+  rp-console:
+    image: docker.redpanda.com/redpandadata/console:v3.3.2
+    ports:
+      - target: 8080
+        published: $RP_CONSOLE_PORT
+        mode: ingress
+    environment:
+      CONFIG_FILEPATH: /etc/console/config.yaml
+    secrets:
+      - source: v2k-redpanda-console
+        target: /etc/console/config.yaml
+    depends_on:
+      - rp
+    networks:
+      - v2k

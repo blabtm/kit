@@ -1,0 +1,23 @@
+networks:
+  v2k:
+    external: true
+
+volumes:
+  grafana:
+
+services:
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - target: 3000
+        published: $GRAFANA_PORT
+        mode: ingress
+    environment:
+      GF_SECURITY_ALLOW_EMBEDDING: "true"
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Viewer"
+    volumes:
+      - grafana:/var/lib/grafana
+      - $REPO_PATH/.obs.prov:/etc/grafana/provisioning:ro
+    networks:
+      - v2k

@@ -1,0 +1,2 @@
+$REPO_PATH/config $NETWORK_ADDR(ro)
+$REPO_PATH/blob   $NETWORK_ADDR(rw)

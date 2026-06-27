@@ -1,0 +1,5 @@
+kit:
+  cluster:
+    - name: "master"
+      host: "192.168.0.37"
+      port: 22

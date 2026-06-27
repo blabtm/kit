@@ -1,0 +1,7 @@
+kit:
+  service:
+    rp:
+      version: "1.0.0"
+      deployment:
+        node:
+          - "master"

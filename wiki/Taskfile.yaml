@@ -1,0 +1,15 @@
+version: "3"
+
+includes:
+  paper:
+    taskfile: ./paper/Taskfile.yaml
+    dir: ./paper
+    optional: true
+
+tasks:
+  build:
+    cmds:
+      - npm run build
+  start:
+    cmds:
+      - npm run start -- --host ${LOCALHOST}

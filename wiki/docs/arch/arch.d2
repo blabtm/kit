@@ -1,0 +1,18 @@
+git: {
+  candidate-1
+  candidate-2
+  running (trunk)
+}
+
+hmi -> repod.candidate-1: rest
+cli -> repod.candidate-2: api
+pr -> repod.candidate-3: direct
+
+repod: {
+  candidate-1 -> running: commit
+  candidate-2 -> running: commit
+  candidate-3 -> running: commit
+}
+
+repod.running -> gateway: notify
+gateway -> collider state: sync

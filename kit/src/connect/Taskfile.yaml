@@ -1,0 +1,14 @@
+version: "3"
+
+tasks:
+  msgp:run:
+    cmds:
+      - docker compose -f msgp/deploy/art/compose.yaml up
+
+  msgp:deploy:
+    cmds:
+      - docker stack deploy -c msgp/deploy/art/compose.yaml v2k_connect_msgp
+
+  pbuf:deploy:
+    cmds:
+      - docker stack deploy -c pbuf/deploy/art/compose.yaml v2k_connect_pbuf

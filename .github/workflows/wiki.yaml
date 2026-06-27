@@ -1,0 +1,48 @@
+name: Publish Docs
+
+on:
+  push:
+    branches:
+      - trunk
+    paths:
+      - "wiki/**"
+      - "**/docs/**"
+
+jobs:
+  pages-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+
+      - name: Install Dependencies
+        run: npm ci
+        working-directory: ./wiki
+      
+      - name: Build Static
+        run: npm run build
+        working-directory: ./wiki
+
+      - name: Upload
+        id: deployment
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: wiki/build
+
+  pages-deploy:
+    needs: pages-build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        uses: actions/deploy-pages@v4

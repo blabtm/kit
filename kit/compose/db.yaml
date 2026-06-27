@@ -1,0 +1,21 @@
+networks:
+  v2k:
+    external: true
+
+volumes:
+  db:
+
+services:
+  db:
+    image: timescale/timescaledb:latest-pg17
+    ports:
+      - target: 5432
+        published: $DB_PORT
+        mode: host
+    environment:
+      POSTGRES_PASSWORD: $DB_PASS
+    volumes:
+      - db:/var/lib/postgresql/data
+      - $REPO_PATH/platform/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - v2k

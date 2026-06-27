@@ -1,0 +1,56 @@
+version: "3"
+
+tasks:
+  build:amd64:
+    env:
+      GOOS: linux
+      GOARCH: amd64
+      CGO_ENABLED: 0
+      TAG: $TAG
+    cmds:
+      - go build -ldflags "-X github.com/blabtm/v2k/platform/sm/cmd.Tag=$TAG" -o sm_amd64 .
+    generates:
+      - sm_amd64
+
+  build:arm64:
+    env:
+      GOOS: linux
+      GOARCH: arm64
+      CGO_ENABLED: 0
+      TAG: $TAG
+    cmds:
+      - go build -ldflags "-X github.com/blabtm/v2k/platform/sm/cmd.Tag=$TAG" -o sm_arm64 .
+    generates:
+      - sm_arm64
+
+  release:
+    cmds:
+      - task: build:amd64
+      - task: build:arm64
+      - envsubst '${TAG}' < util/install.sh > install.sh
+
+  image:
+    cmds:
+      - docker build -t {{.DOCKER_REGISTRY}}/v2k.sm:latest .
+
+  publish:
+    cmds:
+      - docker push {{.DOCKER_REGISTRY}}/v2k.sm:latest
+
+  install:
+    deps: ["build:amd64"]
+    cmds:
+      - mkdir -p $HOME/.local/bin
+      - mkdir -p $HOME/.config/sm
+      - mv sm_amd64 $HOME/.local/bin/sm
+      - |
+        cat <<EOF > "$HOME/.config/sm/config.yaml"
+        remote:
+          host: $LOCALHOST
+          port: 8080
+        EOF
+
+  watch:
+    cmds:
+      - docker compose up --watch
+

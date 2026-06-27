@@ -1,0 +1,6 @@
+[submodule "kit/.devcontainer/features"]
+	path = kit/.devcontainer/features
+	url = git@github.com:blabtm/features.git
+[submodule "kit/src/mq"]
+	path = kit/src/mq
+	url = git@github.com:blabtm/mq.git
