@@ -4,6 +4,7 @@
 
     "features": {
         "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+        "ghcr.io/devcontainers-extra/features/go-task:1": {},
         "ghcr.io/devcontainers/features/go:1": {
             "version": "1.25.5"
         },
@@ -24,6 +25,7 @@
         },
         "ghcr.io/blabtm/features/rpk:0.0.1": {},
         "ghcr.io/blabtm/features/gcx:0.0.2": {},
-        "ghcr.io/blabtm/features/cue:0.0.2": {}
+        "ghcr.io/blabtm/features/cue:0.0.2": {},
+        "ghcr.io/blabtm/features/dagger:0.0.1": {}
     }
 }

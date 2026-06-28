@@ -1,66 +1,10 @@
 version: "3"
 
 vars:
-  DOCKER_REGISTRY: ghcr.io/blabtm
-  SCHEMA_DIR: "{{.ROOT_DIR}}/schema"
-  CONFIG_DIR: "{{.ROOT_DIR}}/config"
-  DEPLOY_DIR: "{{.ROOT_DIR}}/deploy"
-  TOOLS_DIR: "{{.ROOT_DIR}}/tools"
-  BLOB_DIR: "{{.ROOT_DIR}}/blob"
-  DOM_DIR: "{{.ROOT_DIR}}/dom"
-
-dotenv:
-  - platform/env/secret.env
-  - platform/env/build.env
-
-env:
-  ROOT_DIR: "{{.ROOT_DIR}}"
-
-includes:
-  wiki:
-    taskfile: ./wiki/Taskfile.yaml
-    dir: ./wiki
-  platform:
-    taskfile: ./platform/Taskfile.yaml
-    dir: ./platform
-  native:
-    taskfile: ./native/Taskfile.yaml
-    dir: ./native
-  jvm:
-    taskfile: ./jvm/Taskfile.yaml
-    dir: ./jvm
-  py:
-    taskfile: ./py/Taskfile.yaml
-    dir: ./py
+  KIT_DIR: "{{.ROOT_DIR}}/kit"
 
 tasks:
-  push:
+  build:
     cmds:
-      - task: push:schema
-      - task: push:config
-      - task: push:obs
-      - task: push:app
+      - dagger call -m {{.KIT_DIR}} build {{.CLI_ARGS}}
 
-  push:schema:
-    cmds:
-      - "{{.TOOLS_DIR}}/sync/push-schema.sh"
-  push:config:
-    cmds:
-      - "{{.TOOLS_DIR}}/sync/push-config.sh"
-  push:art:
-    cmds:
-      - "{{.TOOLS_DIR}}/sync/push-art.sh"
-  push:obs:
-    cmds:
-      - "{{.TOOLS_DIR}}/sync/push-obs.sh"
-  push:app:
-    cmds:
-      - "{{.TOOLS_DIR}}/sync/push-app.sh"
-  push:ui:
-    cmds:
-      - "{{.TOOLS_DIR}}/sync/push-ui.sh"
-
-  gen:schema:
-    cmds:
-      - cue export --out openapi {{.DOM_DIR}}/hfr/voltage.cue > /tmp/v2k.hfr.json
-      - gnostic --grpc-out={{.SCHEMA_DIR}}/v2k/hfr /tmp/v2k.hfr.json
