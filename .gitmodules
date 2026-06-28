@@ -7,3 +7,9 @@
 [submodule "src/native/extern/protobuf"]
 	path = src/native/extern/protobuf
 	url = https://github.com/protocolbuffers/protobuf.git
+[submodule "src/native/extern/zlog"]
+	path = src/native/extern/zlog
+	url = https://github.com/HardySimpson/zlog.git
+[submodule "src/native/extern/gtest"]
+	path = src/native/extern/gtest
+	url = https://github.com/google/googletest.git
