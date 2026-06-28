@@ -4,3 +4,6 @@
 [submodule "kit/src/mq"]
 	path = kit/src/mq
 	url = git@github.com:blabtm/mq.git
+[submodule "src/native/extern/protobuf"]
+	path = src/native/extern/protobuf
+	url = https://github.com/protocolbuffers/protobuf.git
