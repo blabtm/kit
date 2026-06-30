@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <zlog.h>
 
 int main(void) {
   while (true) {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"dagger.io/dagger"
 	"github.com/blabtm/kit/build"
@@ -34,33 +35,47 @@ func (dag *Dagger) Build(mod *build.Module) error {
 }
 
 func (dag *Dagger) BuildNative(mod *build.Module) error {
-	src := dag.Host().Directory(mod.ToolchainDir)
+	srcPath, _ := filepath.Abs(mod.ToolchainDir)
+	buildPath := fmt.Sprintf("%s/build", srcPath)
+	srcDir := dag.Host().Directory(srcPath)
+
 	pkgs := []string{
 		"build-essential",
 		"cmake",
+		"zlib1g-dev",
+		"libabsl-dev",
 	}
 
 	builder := dag.Container().
 		From("ubuntu:latest").
 		WithExec([]string{"apt-get", "update"}).
 		WithExec(append([]string{"apt-get", "install", "-y"}, pkgs...)).
-		WithDirectory("/src", src).
-		WithWorkdir("/src").
+		WithDirectory(srcPath, srcDir).
+		WithWorkdir(srcPath).
 		WithExec([]string{"mkdir", "-p", "build"}).
 		WithExec([]string{"cmake", "-S", ".", "-B", "build"}).
 		WithExec([]string{"cmake", "--build", "build", "--target", mod.Name})
 
-	image := dag.Container().
-		From("alpine:latest").
-		WithFile("/bin/run", builder.File(fmt.Sprintf("/src/build/%s/%s", mod.Name, mod.Name))).
-		WithEntrypoint([]string{"/bin/run"})
-
-	addr, err := image.Export(context.Background(), "./" + mod.Name + ".tar")
-	if err != nil {
+	if _, err := builder.
+		Directory(buildPath).
+		Export(context.Background(), buildPath); err != nil {
 		return fmt.Errorf("export: %w", err)
 	}
 
-	fmt.Printf("Exported at %s\n", addr)
+	fmt.Println("Ok.")
+
+	return nil
+}
+
+func (dag *Dagger) PackageNative(mod *build.Module, exec *dagger.File) error {
+	image := dag.Container().
+		From("alpine:latest").
+		WithFile("/bin/run", exec).
+		WithEntrypoint([]string{"/bin/run"})
+
+	if _, err := image.Export(context.Background(), "./"+mod.Name+".tar"); err != nil {
+		return fmt.Errorf("export: %w", err)
+	}
 
 	return nil
 }
