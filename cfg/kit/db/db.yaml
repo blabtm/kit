@@ -1,8 +1,0 @@
-kit:
-  service:
-    db:
-      enable: true
-      version: "1.0.0"
-      deployment:
-        node: 
-          - "master"

@@ -8,7 +8,7 @@ import (
   "lab.kit/v1/dom/kit/db"
 )
 
-#Kit: {
+#Config: {
   cluster: env.#Cluster
 
   #validator: env.#ClusterValidator & {

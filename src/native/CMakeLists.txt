@@ -9,4 +9,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS true)
 set(CMAKE_BUILD_TYPE Release)
 
-add_subdirectory(extern)
+# add_subdirectory(extern)
+add_subdirectory(native_example)

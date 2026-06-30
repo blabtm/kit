@@ -1,0 +1,22 @@
+kit:
+  cluster:
+    - name: "master"
+      host: "192.168.0.37"
+      port: 22
+
+  service:
+    db:
+      version: "1.0.0"
+      deployment:
+        node: 
+          - "master"
+    rp:
+      version: "1.0.0"
+      deployment:
+        node:
+          - "master"
+    mq:
+      version: "1.0.0"
+      deployment:
+        node:
+          - "master"

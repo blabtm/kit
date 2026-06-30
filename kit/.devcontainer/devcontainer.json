@@ -6,7 +6,7 @@
         "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
         "ghcr.io/devcontainers-extra/features/go-task:1": {},
         "ghcr.io/devcontainers/features/go:1": {
-            "version": "1.25.5"
+            "version": "1.26.4"
         },
         "ghcr.io/devcontainers-extra/features/zig:1": {
           "version": "0.16.0"

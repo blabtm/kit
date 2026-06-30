@@ -43,7 +43,7 @@ jobs:
           imageName: ghcr.io/blabtm/v2k.dev
           imageTag: latest-${{ steps.tag.outputs.suffix }}
           cacheFrom: ghcr.io/blabtm/v2k.dev:latest-${{ steps.tag.outputs.suffix }}
-          subFolder: .github
+          subFolder: kit
           platform: ${{ matrix.platform }}
           push: always
 
