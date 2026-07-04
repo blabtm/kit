@@ -1,9 +1,13 @@
 package dom
 
 import (
-	"lab.kit/v1/dom/kit"
+	"lab.kit/v1/dom/build"
+	"lab.kit/v1/dom/log"
+	"lab.kit/v1/dom/env"
 )
 
 {
-  "kit": kit.#Config
+	"build":   build.#Config
+	"log":     log.#Config
+	"cluster": env.#Cluster
 }

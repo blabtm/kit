@@ -9,7 +9,6 @@ import (
 )
 
 #Config: {
-  cluster: env.#Cluster
 
   #validator: env.#ClusterValidator & {
     #cluster: cluster
